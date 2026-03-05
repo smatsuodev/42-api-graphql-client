@@ -1,4 +1,8 @@
-import { createRenameTransform, defineConfig } from '@graphql-mesh/compose-cli'
+import {
+  createNamingConventionTransform,
+  createRenameTransform,
+  defineConfig,
+} from '@graphql-mesh/compose-cli'
 import { loadOpenAPISubgraph } from '@omnigraph/openapi'
 
 export const composeConfig = defineConfig({
@@ -26,6 +30,9 @@ export const composeConfig = defineConfig({
             }
             return ''
           },
+        }),
+        createNamingConventionTransform({
+          fieldArgumentNames: 'camelCase',
         }),
       ],
     },

@@ -157,11 +157,11 @@ type Query @extraSchemaDefinitionDirective(
     """
     The user id or slug
     """
-    user_id: String
+    userId: String @source(name: "user_id", type: "String", subgraph: "42API") 
     """
     The project id or slug
     """
-    project_id: String
+    projectId: String @source(name: "project_id", type: "String", subgraph: "42API") 
     pnumber: Int @source(
       name: "page_LEFT_SQUARE_BRACE_number_RIGHT_SQUARE_BRACE_"
       type: "Int"
@@ -182,7 +182,9 @@ type Query @extraSchemaDefinitionDirective(
   """
   Get all projects within cursus
   """
-  cursus_by_cursus_id_projects(cursus_id: String!) : JSON @httpOperation(
+  cursus_by_cursus_id_projects(
+    cursusId: String! @source(name: "cursus_id", type: "String!", subgraph: "42API") 
+  ): JSON @httpOperation(
     subgraph: "42API"
     path: "/cursus/{args.cursus_id}/projects"
     operationSpecificHeaders: [["accept", "application/json"]]
@@ -213,7 +215,7 @@ type Query @extraSchemaDefinitionDirective(
   Get all project sessions
   """
   projectSessions(
-    cursus_id: Int @source(
+    cursusId: Int @source(
       name: "filter_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_"
       type: "Int"
       subgraph: "42API"
@@ -223,12 +225,12 @@ type Query @extraSchemaDefinitionDirective(
       type: "Boolean"
       subgraph: "42API"
     )
-    campus_id: Int @source(
+    campusId: Int @source(
       name: "filter_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_"
       type: "Int"
       subgraph: "42API"
     )
-    project_id: Int @source(
+    projectId: Int @source(
       name: "filter_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_"
       type: "Int"
       subgraph: "42API"
