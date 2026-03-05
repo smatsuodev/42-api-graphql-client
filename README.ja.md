@@ -1,5 +1,5 @@
 # 42 API GraphQL Client
-<div style="text-align:center"><a href="./README.md">English</a> | <a href="./README.ja.md">日本語</a></div>
+<div align="center"><a href="./README.md">English</a> | <a href="./README.ja.md">日本語</a></div>
 
 ## 動作環境
 Bun v1.3.6
