@@ -21,18 +21,18 @@ export const composeConfig = defineConfig({
                 .replace('_RIGHT_SQUARE_BRACE_', '')
             }
             if (opts.argName.startsWith('page_LEFT_SQUARE_BRACE_')) {
-              return (
-                'p' +
-                opts.argName
-                  .replace('page_LEFT_SQUARE_BRACE_', '')
-                  .replace('_RIGHT_SQUARE_BRACE_', '')
-              )
+              const arg = opts.argName
+                .replace('page_LEFT_SQUARE_BRACE_', '')
+                .replace('_RIGHT_SQUARE_BRACE_', '')
+              return 'page' + arg.charAt(0).toUpperCase() + arg.slice(1)
             }
             return ''
           },
         }),
         createNamingConventionTransform({
           fieldArgumentNames: 'camelCase',
+          fieldNames: 'camelCase',
+          typeNames: 'pascalCase',
         }),
       ],
     },

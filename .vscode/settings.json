@@ -4,5 +4,8 @@
     },
     "[javascript]": {
         "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "chat.tools.terminal.autoApprove": {
+        "bun": true
     }
 }
