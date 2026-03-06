@@ -213,6 +213,60 @@ describe('fetchAllPages', () => {
     expect(result.items[3]).toEqual({ id: 2 })
   })
 
+  test('キャッシュヒット時はAPIを呼ばずキャッシュデータを使用する', async () => {
+    const cachedItems = [{ id: 10 }, { id: 11 }]
+    // 2ページ目のみAPIから取得
+    mockFetchResponses([[{ id: 20 }]])
+
+    const loadCachedPage = mock((page: number) => {
+      if (page === 1) return cachedItems
+      return null
+    })
+    const onPageData = mock((_page: number, _items: Record<string, unknown>[]) => {})
+
+    const result = await fetchAllPages(
+      'users',
+      2,
+      1,
+      () => false,
+      () => {},
+      { loadCachedPage, onPageData },
+    )
+
+    expect(result.items).toHaveLength(3)
+    expect(result.items[0]).toEqual({ id: 10 })
+    expect(result.items[2]).toEqual({ id: 20 })
+    // onPageData はキャッシュヒット・フェッチ両方で呼ばれる
+    expect(onPageData).toHaveBeenCalledTimes(2)
+    expect(onPageData.mock.calls[0]![0]).toBe(1) // cached page
+    expect(onPageData.mock.calls[1]![0]).toBe(2) // fetched page
+  })
+
+  test('全ページがキャッシュ済みの場合はAPIを呼ばない', async () => {
+    let fetchCalled = false
+    globalThis.fetch = mock(async () => {
+      fetchCalled = true
+      return new Response(JSON.stringify([]), { status: 200 })
+    }) as unknown as typeof globalThis.fetch
+
+    const result = await fetchAllPages(
+      'users',
+      2,
+      1,
+      () => false,
+      () => {},
+      {
+        loadCachedPage: (page) => {
+          if (page <= 2) return [{ id: page }]
+          return null
+        },
+      },
+    )
+
+    expect(result.items).toHaveLength(2)
+    expect(fetchCalled).toBe(false)
+  })
+
   test('onPageFetchedが各ページ取得後に次のページ番号と累積アイテムで呼ばれる', async () => {
     mockFetchResponses([
       Array.from({ length: PAGE_SIZE }, (_, i) => ({ id: i })),

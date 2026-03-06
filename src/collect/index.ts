@@ -25,6 +25,7 @@ import { readOrCreateOpenApiDoc } from './openapi'
 import { fetchApidocParams } from './apidoc'
 import { buildOpenAPIParameters, extractFieldTypes } from './params'
 import { loadSnapshot, removeSnapshot, saveSnapshot } from './snapshot'
+import { loadAllCachedPages, loadPageCache, savePageCache } from './cache'
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
 
@@ -32,8 +33,7 @@ const API_BASE = 'https://api.intra.42.fr/v2'
 const DEFAULT_MAX_PAGES = 50
 const VALID_STEPS = ['fetch', 'synthesize', 'schema', 'apidoc', 'filter'] as const
 type Step = (typeof VALID_STEPS)[number]
-const OUTPUT_DIR = resolve(import.meta.dirname, '..', '..', 'scripts', 'output')
-const SNAPSHOT_DIR = resolve(import.meta.dirname, '..', '..', '.collect-snapshot')
+const COLLECT_DIR = resolve(import.meta.dirname, '..', '..', '.collect')
 
 // ─── CLI パース ──────────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
 
 オプション:
   --max-pages <n>   最大ページ数 (デフォルト: ${DEFAULT_MAX_PAGES})
-  --offset <n>      取得を開始するページ番号 (デフォルト: 1)
+  --offset <n>      スキップするページ数 (デフォルト: 0)
   --method <METHOD>  HTTP メソッド (デフォルト: GET)
   --dry-run          openapi.yml を書き換えず、スキーマ統計のみ表示
   --resume           前回中断したスナップショットから再開
@@ -80,7 +80,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
 
   let method = 'GET'
   let maxPages = DEFAULT_MAX_PAGES
-  let offset = 1
+  let offset = 0
   let dryRun = false
   let resume = false
   const skip = new Set<Step>()
@@ -96,8 +96,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       i++
     } else if (arg === '--offset' && args[i + 1]) {
       offset = Number.parseInt(args[i + 1]!, 10)
-      if (Number.isNaN(offset) || offset < 1) {
-        throw new Error('--offset は 1 以上の整数を指定してください')
+      if (Number.isNaN(offset) || offset < 0) {
+        throw new Error('--offset は 0 以上の整数を指定してください')
       }
       i++
     } else if (arg === '--method' && args[i + 1]) {
@@ -149,15 +149,22 @@ async function main(): Promise<void> {
   } = parseArgs()
   const safeName = endpoint.replace(/\//g, '_')
 
+  // ─── ディレクトリ構造 ──────────────────────────────────────────────────
+
+  const endpointDir = resolve(COLLECT_DIR, safeName)
+  const pagesDir = resolve(endpointDir, 'pages')
+  const fullPath = resolve(endpointDir, 'full.json')
+  const nullablePath = resolve(endpointDir, 'nullable.json')
+
   // ─── スナップショット復元 ──────────────────────────────────────────────
 
-  let initialItems: Record<string, unknown>[] = []
   let tracker = new CoverageTracker()
   let maxPages = origMaxPages
-  let offset = origOffset
+  // offset はスキップするページ数なので、開始ページは offset + 1
+  let startPage = origOffset + 1
 
   if (resume) {
-    const snapshot = loadSnapshot(SNAPSHOT_DIR, safeName)
+    const snapshot = loadSnapshot(endpointDir)
     if (snapshot) {
       if (snapshot.endpoint !== endpoint || snapshot.method !== method) {
         console.warn(
@@ -165,16 +172,13 @@ async function main(): Promise<void> {
             `現在の指定 (${endpoint}, ${method}) と一致しません。無視します。`,
         )
       } else {
-        initialItems = snapshot.items
         tracker = CoverageTracker.fromJSON(snapshot.coverage)
-        offset = snapshot.nextPage
+        startPage = snapshot.nextPage
         // 残りページ数 = 元の最終ページ - 再開ページ + 1
-        const origLastPage = snapshot.offset + snapshot.maxPages - 1
-        maxPages = Math.max(1, origLastPage - offset + 1)
+        const origLastPage = snapshot.offset + 1 + snapshot.maxPages - 1
+        maxPages = Math.max(1, origLastPage - startPage + 1)
 
-        console.log(
-          `[snapshot] スナップショットから復元: ${initialItems.length} 件, ページ ${offset} から再開`,
-        )
+        console.log(`[snapshot] スナップショットから復元: ページ ${startPage} から再開`)
       }
     } else {
       console.log('[snapshot] スナップショットが見つかりません。最初から開始します。')
@@ -183,7 +187,7 @@ async function main(): Promise<void> {
 
   console.log('\n=== 42 API レスポンス収集 ===')
   console.log(`エンドポイント: ${API_BASE}/${endpoint}`)
-  console.log(`開始ページ: ${offset}`)
+  console.log(`開始ページ: ${startPage}`)
   console.log(`最大ページ数: ${maxPages}`)
   console.log(`ページサイズ: ${PAGE_SIZE}`)
   console.log(`HTTP メソッド: ${method}`)
@@ -192,20 +196,18 @@ async function main(): Promise<void> {
   if (skip.size > 0) {
     console.log(`skip: ${[...skip].join(', ')}`)
   }
-  console.log(`出力先: ${OUTPUT_DIR}/${safeName}_*.json\n`)
+  console.log(`出力先: ${endpointDir}/\n`)
 
   // ─── Step 1-2: API 収集 ────────────────────────────────────────────────
 
-  const fullPath = resolve(OUTPUT_DIR, `${safeName}_full.json`)
-  const nullablePath = resolve(OUTPUT_DIR, `${safeName}_nullable.json`)
   let full: unknown
   let nullable: unknown
 
   if (!skip.has('fetch')) {
-    const { items: allItems } = await fetchAllPages(
+    await fetchAllPages(
       endpoint,
       maxPages,
-      offset,
+      startPage,
       () => tracker.isFullyCovered(),
       (records) => {
         for (const record of records) {
@@ -214,15 +216,17 @@ async function main(): Promise<void> {
         tracker.printProgress()
       },
       {
-        initialItems,
-        onPageFetched: (nextPage, currentItems) => {
-          saveSnapshot(SNAPSHOT_DIR, safeName, {
+        loadCachedPage: (page) => loadPageCache(pagesDir, page)?.items ?? null,
+        onPageData: (page, items) => {
+          savePageCache(pagesDir, page, items)
+        },
+        onPageFetched: (nextPage) => {
+          saveSnapshot(endpointDir, {
             endpoint,
             method,
             nextPage,
             maxPages: origMaxPages,
             offset: origOffset,
-            items: currentItems,
             coverage: tracker.toJSON(),
             savedAt: new Date().toISOString(),
           })
@@ -230,11 +234,21 @@ async function main(): Promise<void> {
       },
     )
 
+    // 全キャッシュ済みページからアイテムをマージ
+    const allCachedPages = loadAllCachedPages(pagesDir)
+    const allItems = allCachedPages.flatMap((p) => p.items)
+
     if (allItems.length === 0) {
       throw new Error('レスポンスを 1 件も取得できませんでした')
     }
 
     console.log(`\n合計 ${allItems.length} 件のレスポンスを収集しました。合成を開始します...\n`)
+
+    // CoverageTracker を全アイテムで再構築
+    tracker = new CoverageTracker()
+    for (const item of allItems) {
+      tracker.update(item)
+    }
 
     // ─── Step 3: 合成 ──────────────────────────────────────────────────────
 
@@ -244,7 +258,7 @@ async function main(): Promise<void> {
 
       // ─── Step 4: 中間ファイル書き出し ──────────────────────────────────────
 
-      mkdirSync(OUTPUT_DIR, { recursive: true })
+      mkdirSync(endpointDir, { recursive: true })
 
       writeFileSync(fullPath, JSON.stringify(full, null, 2) + '\n')
       writeFileSync(nullablePath, JSON.stringify(nullable, null, 2) + '\n')
@@ -328,7 +342,7 @@ async function main(): Promise<void> {
 
   // ─── Step 7: スナップショットクリーンアップ ────────────────────────────
 
-  removeSnapshot(SNAPSHOT_DIR, safeName)
+  removeSnapshot(endpointDir)
   console.log('[snapshot] スナップショットを削除しました')
 
   console.log('\n完了！')

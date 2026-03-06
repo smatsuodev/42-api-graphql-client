@@ -13,8 +13,7 @@ function createSnapshotData(overrides: Partial<SnapshotData> = {}): SnapshotData
     method: 'GET',
     nextPage: 3,
     maxPages: 50,
-    offset: 1,
-    items: [{ id: 1, name: 'Alice' }],
+    offset: 0,
     coverage: {
       id: { hasValue: true, hasNull: false },
       name: { hasValue: true, hasNull: false },
@@ -38,74 +37,67 @@ afterEach(() => {
 
 describe('saveSnapshot / loadSnapshot', () => {
   test('保存したスナップショットをそのまま読み込める', () => {
+    const endpointDir = join(tmpDir, 'project_sessions')
     const data = createSnapshotData()
-    saveSnapshot(tmpDir, 'project_sessions', data)
+    saveSnapshot(endpointDir, data)
 
-    const loaded = loadSnapshot(tmpDir, 'project_sessions')
+    const loaded = loadSnapshot(endpointDir)
     expect(loaded).toEqual(data)
   })
 
-  test('異なるsafeNameのスナップショットは独立している', () => {
+  test('異なるエンドポイントのスナップショットは独立している', () => {
+    const dir1 = join(tmpDir, 'cursus')
+    const dir2 = join(tmpDir, 'campus')
     const data1 = createSnapshotData({ endpoint: 'cursus' })
     const data2 = createSnapshotData({ endpoint: 'campus' })
 
-    saveSnapshot(tmpDir, 'cursus', data1)
-    saveSnapshot(tmpDir, 'campus', data2)
+    saveSnapshot(dir1, data1)
+    saveSnapshot(dir2, data2)
 
-    expect(loadSnapshot(tmpDir, 'cursus')).toEqual(data1)
-    expect(loadSnapshot(tmpDir, 'campus')).toEqual(data2)
+    expect(loadSnapshot(dir1)).toEqual(data1)
+    expect(loadSnapshot(dir2)).toEqual(data2)
   })
 
   test('スナップショットを上書き保存できる', () => {
+    const endpointDir = join(tmpDir, 'project_sessions')
     const data1 = createSnapshotData({ nextPage: 3 })
     const data2 = createSnapshotData({ nextPage: 10 })
 
-    saveSnapshot(tmpDir, 'project_sessions', data1)
-    saveSnapshot(tmpDir, 'project_sessions', data2)
+    saveSnapshot(endpointDir, data1)
+    saveSnapshot(endpointDir, data2)
 
-    const loaded = loadSnapshot(tmpDir, 'project_sessions')
+    const loaded = loadSnapshot(endpointDir)
     expect(loaded).toEqual(data2)
-  })
-
-  test('大量のitemsを含むスナップショットを保存・復元できる', () => {
-    const items = Array.from({ length: 500 }, (_, i) => ({
-      id: i,
-      name: `item-${i}`,
-    }))
-    const data = createSnapshotData({ items })
-
-    saveSnapshot(tmpDir, 'large', data)
-    const loaded = loadSnapshot(tmpDir, 'large')
-    expect(loaded!.items).toHaveLength(500)
   })
 })
 
 describe('loadSnapshot', () => {
   test('ファイルが存在しない場合はnullを返す', () => {
-    const loaded = loadSnapshot(tmpDir, 'nonexistent')
+    const loaded = loadSnapshot(join(tmpDir, 'nonexistent'))
     expect(loaded).toBeNull()
   })
 
   test('ディレクトリが存在しない場合はnullを返す', () => {
-    const loaded = loadSnapshot(join(tmpDir, 'no-such-dir'), 'test')
+    const loaded = loadSnapshot(join(tmpDir, 'no-such-dir', 'nested'))
     expect(loaded).toBeNull()
   })
 })
 
 describe('removeSnapshot', () => {
   test('スナップショットを削除できる', () => {
+    const endpointDir = join(tmpDir, 'project_sessions')
     const data = createSnapshotData()
-    saveSnapshot(tmpDir, 'project_sessions', data)
+    saveSnapshot(endpointDir, data)
 
-    removeSnapshot(tmpDir, 'project_sessions')
+    removeSnapshot(endpointDir)
 
-    const loaded = loadSnapshot(tmpDir, 'project_sessions')
+    const loaded = loadSnapshot(endpointDir)
     expect(loaded).toBeNull()
   })
 
   test('存在しないスナップショットの削除はエラーにならない', () => {
     expect(() => {
-      removeSnapshot(tmpDir, 'nonexistent')
+      removeSnapshot(join(tmpDir, 'nonexistent'))
     }).not.toThrow()
   })
 })

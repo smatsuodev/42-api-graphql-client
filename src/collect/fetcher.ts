@@ -127,6 +127,10 @@ export interface FetchOptions {
   initialItems?: Record<string, unknown>[]
   /** 各ページ取得後に呼ばれるコールバック (次のページ番号と累積アイテムを引数に取る) */
   onPageFetched?: (nextPage: number, currentItems: Record<string, unknown>[]) => void
+  /** ページキャッシュからアイテムを読み込む。null を返すとキャッシュミス */
+  loadCachedPage?: (page: number) => Record<string, unknown>[] | null
+  /** ページデータ取得後に呼ばれるコールバック (キャッシュヒット・フェッチ両方) */
+  onPageData?: (page: number, items: Record<string, unknown>[]) => void
 }
 
 /**
@@ -140,12 +144,24 @@ export async function fetchAllPages(
   onItems: (items: Record<string, unknown>[]) => void,
   options: FetchOptions = {},
 ): Promise<FetchResult> {
-  const { initialItems = [], onPageFetched } = options
+  const { initialItems = [], onPageFetched, loadCachedPage, onPageData } = options
   const lastPage = offset + maxPages - 1
   const allItems: Record<string, unknown>[] = [...initialItems]
   let totalItems = 0
 
   for (let page = offset; page <= lastPage; page++) {
+    // キャッシュ確認
+    const cached = loadCachedPage?.(page) ?? null
+    if (cached) {
+      console.log(`[cache] ページ ${page} はキャッシュから読み込みました (${cached.length} 件)`)
+      totalItems += cached.length
+      allItems.push(...cached)
+      onItems(cached)
+      onPageData?.(page, cached)
+      onPageFetched?.(page + 1, [...allItems])
+      continue
+    }
+
     console.log(`[fetch] ページ ${page}/${lastPage} を取得中...`)
 
     const items = await fetchPage(endpoint, page)
@@ -172,6 +188,7 @@ export async function fetchAllPages(
 
     allItems.push(...records)
     onItems(records)
+    onPageData?.(page, records)
     onPageFetched?.(page + 1, [...allItems])
 
     // 全フィールドでカバレッジが完了したら終了

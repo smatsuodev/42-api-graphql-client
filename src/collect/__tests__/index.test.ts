@@ -8,7 +8,7 @@ describe('parseArgs', () => {
     const result = parseArgs(['project_sessions'])
     expect(result.endpoint).toBe('project_sessions')
     expect(result.maxPages).toBe(50)
-    expect(result.offset).toBe(1)
+    expect(result.offset).toBe(0)
     expect(result.method).toBe('GET')
     expect(result.dryRun).toBe(false)
     expect(result.resume).toBe(false)

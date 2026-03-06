@@ -3,6 +3,7 @@
  *
  * collect コマンドの実行中にページ取得ごとにスナップショットを保存し、
  * エラーで中断しても --resume フラグで途中から再開できるようにする。
+ * アイテムデータはページキャッシュに保存されるため、スナップショットには含めない。
  */
 
 import { existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync, readFileSync } from 'node:fs'
@@ -20,10 +21,8 @@ export interface SnapshotData {
   nextPage: number
   /** 元の最大ページ数設定 */
   maxPages: number
-  /** 元の開始ページ番号 */
+  /** 元の開始オフセット */
   offset: number
-  /** 累積収集データ */
-  items: Record<string, unknown>[]
   /** CoverageTracker のシリアライズ結果 */
   coverage: Record<string, FieldCoverage>
   /** 保存時刻 (ISO 8601) */
@@ -32,8 +31,8 @@ export interface SnapshotData {
 
 // ─── ファイル名 ──────────────────────────────────────────────────────────────
 
-function snapshotPath(snapshotDir: string, safeName: string): string {
-  return join(snapshotDir, `${safeName}.snapshot.json`)
+function snapshotFilePath(endpointDir: string): string {
+  return join(endpointDir, 'snapshot.json')
 }
 
 // ─── 保存 ────────────────────────────────────────────────────────────────────
@@ -41,10 +40,10 @@ function snapshotPath(snapshotDir: string, safeName: string): string {
 /**
  * スナップショットをファイルに書き出す (アトミック書き込み: tmp → rename)
  */
-export function saveSnapshot(snapshotDir: string, safeName: string, data: SnapshotData): void {
-  mkdirSync(snapshotDir, { recursive: true })
+export function saveSnapshot(endpointDir: string, data: SnapshotData): void {
+  mkdirSync(endpointDir, { recursive: true })
 
-  const target = snapshotPath(snapshotDir, safeName)
+  const target = snapshotFilePath(endpointDir)
   const tmp = `${target}.tmp`
 
   writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n')
@@ -56,8 +55,8 @@ export function saveSnapshot(snapshotDir: string, safeName: string, data: Snapsh
 /**
  * スナップショットを読み込む。ファイルが存在しない場合は null を返す。
  */
-export function loadSnapshot(snapshotDir: string, safeName: string): SnapshotData | null {
-  const target = snapshotPath(snapshotDir, safeName)
+export function loadSnapshot(endpointDir: string): SnapshotData | null {
+  const target = snapshotFilePath(endpointDir)
   if (!existsSync(target)) return null
 
   const content = readFileSync(target, 'utf-8')
@@ -69,8 +68,8 @@ export function loadSnapshot(snapshotDir: string, safeName: string): SnapshotDat
 /**
  * スナップショットを削除する。ファイルが存在しない場合は何もしない。
  */
-export function removeSnapshot(snapshotDir: string, safeName: string): void {
-  const target = snapshotPath(snapshotDir, safeName)
+export function removeSnapshot(endpointDir: string): void {
+  const target = snapshotFilePath(endpointDir)
   if (existsSync(target)) {
     unlinkSync(target)
   }
