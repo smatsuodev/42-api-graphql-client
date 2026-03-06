@@ -800,3 +800,575 @@ paths:
                     - kind
           headers: {}
       security: []
+  /campus:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - created_at
+                - updated_at
+                - time_zone
+                - language_id
+                - slug
+                - main_email
+                - endpoint_id
+                - vogsphere_id
+                - content_email
+                - time_of_community_service_started
+                - companies_mail
+                - address
+                - zip
+                - city
+                - country
+                - pro_needs_validation
+                - logo
+                - website
+                - facebook
+                - twitter
+                - display_name
+                - email_extension
+                - help_url
+                - active
+                - open_to_job_offers
+                - default_hidden_phone
+                - tig_email
+                - minimum_slot_duration
+                - alumni_system
+                - manual_alumnization_before_first_internship
+                - public
+                - '-id'
+                - '-name'
+                - '-created_at'
+                - '-updated_at'
+                - '-time_zone'
+                - '-language_id'
+                - '-slug'
+                - '-main_email'
+                - '-endpoint_id'
+                - '-vogsphere_id'
+                - '-content_email'
+                - '-time_of_community_service_started'
+                - '-companies_mail'
+                - '-address'
+                - '-zip'
+                - '-city'
+                - '-country'
+                - '-pro_needs_validation'
+                - '-logo'
+                - '-website'
+                - '-facebook'
+                - '-twitter'
+                - '-display_name'
+                - '-email_extension'
+                - '-help_url'
+                - '-active'
+                - '-open_to_job_offers'
+                - '-default_hidden_phone'
+                - '-tig_email'
+                - '-minimum_slot_duration'
+                - '-alumni_system'
+                - '-manual_alumnization_before_first_internship'
+                - '-public'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[time_zone]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[language_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[slug]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[main_email]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[endpoint_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[vogsphere_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[content_email]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[time_of_community_service_started]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[companies_mail]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[address]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[zip]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[city]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[country]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[pro_needs_validation]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[logo]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[website]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[facebook]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[twitter]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[display_name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[email_extension]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[help_url]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[active]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[open_to_job_offers]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[default_hidden_phone]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[tig_email]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[minimum_slot_duration]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[alumni_system]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[manual_alumnization_before_first_internship]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[public]
+          in: query
+          schema:
+            type: boolean
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[name]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[time_zone]
+          in: query
+          schema:
+            type: string
+        - name: range[language_id]
+          in: query
+          schema:
+            type: string
+        - name: range[slug]
+          in: query
+          schema:
+            type: string
+        - name: range[main_email]
+          in: query
+          schema:
+            type: string
+        - name: range[endpoint_id]
+          in: query
+          schema:
+            type: string
+        - name: range[vogsphere_id]
+          in: query
+          schema:
+            type: string
+        - name: range[content_email]
+          in: query
+          schema:
+            type: string
+        - name: range[time_of_community_service_started]
+          in: query
+          schema:
+            type: string
+        - name: range[companies_mail]
+          in: query
+          schema:
+            type: string
+        - name: range[address]
+          in: query
+          schema:
+            type: string
+        - name: range[zip]
+          in: query
+          schema:
+            type: string
+        - name: range[city]
+          in: query
+          schema:
+            type: string
+        - name: range[country]
+          in: query
+          schema:
+            type: string
+        - name: range[pro_needs_validation]
+          in: query
+          schema:
+            type: string
+        - name: range[logo]
+          in: query
+          schema:
+            type: string
+        - name: range[website]
+          in: query
+          schema:
+            type: string
+        - name: range[facebook]
+          in: query
+          schema:
+            type: string
+        - name: range[twitter]
+          in: query
+          schema:
+            type: string
+        - name: range[display_name]
+          in: query
+          schema:
+            type: string
+        - name: range[email_extension]
+          in: query
+          schema:
+            type: string
+        - name: range[help_url]
+          in: query
+          schema:
+            type: string
+        - name: range[active]
+          in: query
+          schema:
+            type: string
+        - name: range[open_to_job_offers]
+          in: query
+          schema:
+            type: string
+        - name: range[default_hidden_phone]
+          in: query
+          schema:
+            type: string
+        - name: range[tig_email]
+          in: query
+          schema:
+            type: string
+        - name: range[minimum_slot_duration]
+          in: query
+          schema:
+            type: string
+        - name: range[alumni_system]
+          in: query
+          schema:
+            type: string
+        - name: range[manual_alumnization_before_first_internship]
+          in: query
+          schema:
+            type: string
+        - name: range[public]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    time_zone:
+                      type: string
+                    language:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        identifier:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - identifier
+                    users_count:
+                      type: integer
+                    vogsphere_id:
+                      type: integer
+                      nullable: true
+                    country:
+                      type: string
+                    address:
+                      type: string
+                    zip:
+                      type: string
+                    city:
+                      type: string
+                    website:
+                      type: string
+                    facebook:
+                      type: string
+                    twitter:
+                      type: string
+                    active:
+                      type: boolean
+                    public:
+                      type: boolean
+                    email_extension:
+                      type: string
+                      nullable: true
+                    default_hidden_phone:
+                      type: boolean
+                    endpoint:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: integer
+                        url:
+                          type: string
+                        description:
+                          type: string
+                        created_at:
+                          type: string
+                        updated_at:
+                          type: string
+                      required:
+                        - id
+                        - url
+                        - description
+                        - created_at
+                        - updated_at
+                  required:
+                    - id
+                    - name
+                    - time_zone
+                    - language
+                    - users_count
+                    - vogsphere_id
+                    - country
+                    - address
+                    - zip
+                    - city
+                    - website
+                    - facebook
+                    - twitter
+                    - active
+                    - public
+                    - email_extension
+                    - default_hidden_phone
+                    - endpoint
+          headers: {}
+      security: []
