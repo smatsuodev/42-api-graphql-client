@@ -15,18 +15,23 @@
  *   bun collect --method POST users --dry-run
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fetchAllPages, PAGE_SIZE } from './fetcher'
 import { CoverageTracker, synthesizeFull, synthesizeNullable } from './synthesizer'
-import { updateSchema } from './schema'
+import { updateParameters, updateSchema } from './schema'
 import { fixFilters } from './filter'
+import { readOrCreateOpenApiDoc } from './openapi'
+import { fetchApidocParams } from './apidoc'
+import { buildOpenAPIParameters, extractFieldTypes } from './params'
 import { loadSnapshot, removeSnapshot, saveSnapshot } from './snapshot'
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
 
 const API_BASE = 'https://api.intra.42.fr/v2'
 const DEFAULT_MAX_PAGES = 50
+const VALID_STEPS = ['fetch', 'synthesize', 'schema', 'apidoc', 'filter'] as const
+type Step = (typeof VALID_STEPS)[number]
 const OUTPUT_DIR = resolve(import.meta.dirname, '..', '..', 'scripts', 'output')
 const SNAPSHOT_DIR = resolve(import.meta.dirname, '..', '..', '.collect-snapshot')
 
@@ -39,6 +44,7 @@ export interface ParsedArgs {
   method: string
   dryRun: boolean
   resume: boolean
+  skip: Set<Step>
 }
 
 export function parseArgs(argv?: string[]): ParsedArgs {
@@ -59,6 +65,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   --method <METHOD>  HTTP メソッド (デフォルト: GET)
   --dry-run          openapi.yml を書き換えず、スキーマ統計のみ表示
   --resume           前回中断したスナップショットから再開
+  --skip <steps>     スキップするステップをカンマ区切りで指定
+                     (${VALID_STEPS.join(', ')})
   --help, -h         このヘルプを表示
 
 例:
@@ -75,6 +83,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   let offset = 1
   let dryRun = false
   let resume = false
+  const skip = new Set<Step>()
   const positional: string[] = []
 
   for (let i = 0; i < args.length; i++) {
@@ -98,6 +107,17 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       dryRun = true
     } else if (arg === '--resume') {
       resume = true
+    } else if (arg === '--skip' && args[i + 1]) {
+      for (const s of args[i + 1]!.split(',')) {
+        const trimmed = s.trim()
+        if (!VALID_STEPS.includes(trimmed as Step)) {
+          throw new Error(
+            `不明なステップ: ${trimmed} (有効なステップ: ${VALID_STEPS.join(', ')})`,
+          )
+        }
+        skip.add(trimmed as Step)
+      }
+      i++
     } else if (arg.startsWith('-')) {
       throw new Error(`不明なオプション: ${arg}`)
     } else {
@@ -112,7 +132,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   // 先頭の / を除去
   const endpoint = positional[0]!.replace(/^\//, '')
 
-  return { endpoint, maxPages, offset, method, dryRun, resume }
+  return { endpoint, maxPages, offset, method, dryRun, resume, skip }
 }
 
 // ─── メイン処理 ──────────────────────────────────────────────────────────────
@@ -125,6 +145,7 @@ async function main(): Promise<void> {
     method,
     dryRun,
     resume,
+    skip,
   } = parseArgs()
   const safeName = endpoint.replace(/\//g, '_')
 
@@ -168,74 +189,141 @@ async function main(): Promise<void> {
   console.log(`HTTP メソッド: ${method}`)
   console.log(`dry-run: ${dryRun}`)
   console.log(`resume: ${resume}`)
+  if (skip.size > 0) {
+    console.log(`skip: ${[...skip].join(', ')}`)
+  }
   console.log(`出力先: ${OUTPUT_DIR}/${safeName}_*.json\n`)
 
   // ─── Step 1-2: API 収集 ────────────────────────────────────────────────
 
-  const { items: allItems } = await fetchAllPages(
-    endpoint,
-    maxPages,
-    offset,
-    () => tracker.isFullyCovered(),
-    (records) => {
-      for (const record of records) {
-        tracker.update(record)
-      }
-      tracker.printProgress()
-    },
-    {
-      initialItems,
-      onPageFetched: (nextPage, currentItems) => {
-        saveSnapshot(SNAPSHOT_DIR, safeName, {
-          endpoint,
-          method,
-          nextPage,
-          maxPages: origMaxPages,
-          offset: origOffset,
-          items: currentItems,
-          coverage: tracker.toJSON(),
-          savedAt: new Date().toISOString(),
-        })
-      },
-    },
-  )
-
-  if (allItems.length === 0) {
-    throw new Error('レスポンスを 1 件も取得できませんでした')
-  }
-
-  console.log(`\n合計 ${allItems.length} 件のレスポンスを収集しました。合成を開始します...\n`)
-
-  // ─── Step 3: 合成 ──────────────────────────────────────────────────────
-
-  const full = synthesizeFull(allItems)
-  const nullable = synthesizeNullable(allItems)
-
-  // ─── Step 4: 中間ファイル書き出し ──────────────────────────────────────
-
-  mkdirSync(OUTPUT_DIR, { recursive: true })
-
   const fullPath = resolve(OUTPUT_DIR, `${safeName}_full.json`)
   const nullablePath = resolve(OUTPUT_DIR, `${safeName}_nullable.json`)
+  let full: unknown
+  let nullable: unknown
 
-  writeFileSync(fullPath, JSON.stringify(full, null, 2) + '\n')
-  writeFileSync(nullablePath, JSON.stringify(nullable, null, 2) + '\n')
+  if (!skip.has('fetch')) {
+    const { items: allItems } = await fetchAllPages(
+      endpoint,
+      maxPages,
+      offset,
+      () => tracker.isFullyCovered(),
+      (records) => {
+        for (const record of records) {
+          tracker.update(record)
+        }
+        tracker.printProgress()
+      },
+      {
+        initialItems,
+        onPageFetched: (nextPage, currentItems) => {
+          saveSnapshot(SNAPSHOT_DIR, safeName, {
+            endpoint,
+            method,
+            nextPage,
+            maxPages: origMaxPages,
+            offset: origOffset,
+            items: currentItems,
+            coverage: tracker.toJSON(),
+            savedAt: new Date().toISOString(),
+          })
+        },
+      },
+    )
 
-  console.log(`[output] ${fullPath}`)
-  console.log(`[output] ${nullablePath}`)
+    if (allItems.length === 0) {
+      throw new Error('レスポンスを 1 件も取得できませんでした')
+    }
 
-  // カバレッジサマリー
-  tracker.printSummary()
+    console.log(`\n合計 ${allItems.length} 件のレスポンスを収集しました。合成を開始します...\n`)
+
+    // ─── Step 3: 合成 ──────────────────────────────────────────────────────
+
+    if (!skip.has('synthesize')) {
+      full = [synthesizeFull(allItems)]
+      nullable = [synthesizeNullable(allItems)]
+
+      // ─── Step 4: 中間ファイル書き出し ──────────────────────────────────────
+
+      mkdirSync(OUTPUT_DIR, { recursive: true })
+
+      writeFileSync(fullPath, JSON.stringify(full, null, 2) + '\n')
+      writeFileSync(nullablePath, JSON.stringify(nullable, null, 2) + '\n')
+
+      console.log(`[output] ${fullPath}`)
+      console.log(`[output] ${nullablePath}`)
+
+      // カバレッジサマリー
+      tracker.printSummary()
+    } else {
+      console.log('[skip] synthesize をスキップしました')
+    }
+  } else {
+    console.log('[skip] fetch をスキップしました')
+  }
 
   // ─── Step 5: OpenAPI スキーマ更新 ──────────────────────────────────────
 
   const endpointPath = `/${endpoint}`
-  updateSchema(full, nullable, endpointPath, method, dryRun)
+
+  if (!skip.has('schema')) {
+    if (!full || !nullable) {
+      if (!existsSync(fullPath) || !existsSync(nullablePath)) {
+        throw new Error(
+          `schema ステップには ${fullPath} と ${nullablePath} が必要です。先に fetch + synthesize を実行してください。`,
+        )
+      }
+      full = [JSON.parse(readFileSync(fullPath, 'utf-8'))]
+      nullable = [JSON.parse(readFileSync(nullablePath, 'utf-8'))]
+    }
+    updateSchema(full!, nullable!, endpointPath, method, dryRun)
+  } else {
+    console.log('[skip] schema をスキップしました')
+  }
+
+  // ─── Step 5.5: apidoc パラメータ取得 ──────────────────────────────────
+
+  if (!skip.has('apidoc')) {
+    try {
+      const apidocParams = await fetchApidocParams(safeName)
+      console.log(
+        `[apidoc] sort: ${apidocParams.sort.length}, filter: ${apidocParams.filter.length}, range: ${apidocParams.range.length}, page: ${apidocParams.hasPage}`,
+      )
+
+      // レスポンススキーマからフィールド型マップを構築
+      const doc = readOrCreateOpenApiDoc()
+      const operation = doc.paths?.[endpointPath]?.[method.toLowerCase()] as
+        | Record<string, unknown>
+        | undefined
+      const responses = operation?.responses as Record<string, Record<string, unknown>> | undefined
+      const content = responses?.['200']?.content as Record<string, Record<string, unknown>> | undefined
+      const responseSchema = content?.['application/json']?.schema as
+        | Record<string, unknown>
+        | undefined
+      const fieldTypes = responseSchema ? extractFieldTypes(responseSchema) : undefined
+
+      const parameters = buildOpenAPIParameters(apidocParams, fieldTypes)
+      if (parameters.length > 0) {
+        updateParameters(endpointPath, method, parameters, dryRun)
+      } else {
+        console.log('[apidoc] パラメータが見つかりませんでした')
+      }
+    } catch (err) {
+      console.warn(
+        `[apidoc] パラメータ取得に失敗しました (続行します): ${err instanceof Error ? err.message : err}`,
+      )
+    }
+  } else {
+    console.log('[skip] apidoc をスキップしました')
+  }
 
   // ─── Step 6: filter パラメータ修正 ─────────────────────────────────────
 
-  if (!dryRun) {
-    fixFilters()
+  if (!skip.has('filter')) {
+    if (!dryRun) {
+      fixFilters()
+    }
+  } else {
+    console.log('[skip] filter をスキップしました')
   }
 
   // ─── Step 7: スナップショットクリーンアップ ────────────────────────────

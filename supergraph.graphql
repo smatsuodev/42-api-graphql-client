@@ -131,19 +131,203 @@ scalar _DirectiveExtensions @join__type(graph: _42_API_)
 type Query @extraSchemaDefinitionDirective(
   directives: {transport: [{subgraph: "42API", kind: "rest", location: "http://api.intra.42.fr/v2/"}]}
 ) @join__type(graph: _42_API_)  {
-  projectSessions: ProjectSessions_200Response @httpOperation(
+  projectSessions(
+    sort: String
+    id: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    projectId: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    campusId: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    cursusId: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    estimateTime: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    createdAt: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    updatedAt: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    beginAt: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    endAt: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    maxPeople: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    durationDays: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    terminatingAfter: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    solo: Boolean @source(
+      name: "filter_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_"
+      type: "Boolean"
+      subgraph: "42API"
+    )
+    isSubscriptable: Boolean @source(
+      name: "filter_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_"
+      type: "Boolean"
+      subgraph: "42API"
+    )
+    teamBehaviour: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    difficulty: [Int] @source(
+      name: "filter_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_"
+      type: "[Int]"
+      subgraph: "42API"
+    )
+    future: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_future_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    end: [String] @source(
+      name: "filter_LEFT_SQUARE_BRACE_end_RIGHT_SQUARE_BRACE_"
+      type: "[String]"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceIdRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceProjectIdRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceCampusIdRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceCursusIdRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceEstimateTimeRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceCreatedAtRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceUpdatedAtRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceBeginAtRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceEndAtRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceMaxPeopleRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceDurationDaysRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceTerminatingAfterRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceSoloRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceIsSubscriptableRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceTeamBehaviourRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    rangeLeftSquareBraceDifficultyRightSquareBrace: String @source(
+      name: "range_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_"
+      type: "String"
+      subgraph: "42API"
+    )
+    pageNumber: Int @source(
+      name: "page_LEFT_SQUARE_BRACE_number_RIGHT_SQUARE_BRACE_"
+      type: "Int"
+      subgraph: "42API"
+    )
+    pageSize: Int @source(
+      name: "page_LEFT_SQUARE_BRACE_size_RIGHT_SQUARE_BRACE_"
+      type: "Int"
+      subgraph: "42API"
+    )
+  ): [QueryProjectSessionsItems] @httpOperation(
     subgraph: "42API"
     path: "/project_sessions"
     operationSpecificHeaders: [["accept", "application/json"]]
     httpMethod: GET
+    queryParamArgMap: "{\"sort\":\"sort\",\"filter[id]\":\"filter_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_\",\"filter[project_id]\":\"filter_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_\",\"filter[campus_id]\":\"filter_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_\",\"filter[cursus_id]\":\"filter_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_\",\"filter[estimate_time]\":\"filter_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_\",\"filter[created_at]\":\"filter_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_\",\"filter[updated_at]\":\"filter_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_\",\"filter[begin_at]\":\"filter_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_\",\"filter[end_at]\":\"filter_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_\",\"filter[max_people]\":\"filter_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_\",\"filter[duration_days]\":\"filter_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_\",\"filter[terminating_after]\":\"filter_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_\",\"filter[solo]\":\"filter_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_\",\"filter[is_subscriptable]\":\"filter_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_\",\"filter[team_behaviour]\":\"filter_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_\",\"filter[difficulty]\":\"filter_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_\",\"filter[future]\":\"filter_LEFT_SQUARE_BRACE_future_RIGHT_SQUARE_BRACE_\",\"filter[end]\":\"filter_LEFT_SQUARE_BRACE_end_RIGHT_SQUARE_BRACE_\",\"range[id]\":\"range_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_\",\"range[project_id]\":\"range_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_\",\"range[campus_id]\":\"range_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_\",\"range[cursus_id]\":\"range_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_\",\"range[estimate_time]\":\"range_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_\",\"range[created_at]\":\"range_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_\",\"range[updated_at]\":\"range_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_\",\"range[begin_at]\":\"range_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_\",\"range[end_at]\":\"range_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_\",\"range[max_people]\":\"range_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_\",\"range[duration_days]\":\"range_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_\",\"range[terminating_after]\":\"range_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_\",\"range[solo]\":\"range_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_\",\"range[is_subscriptable]\":\"range_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_\",\"range[team_behaviour]\":\"range_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_\",\"range[difficulty]\":\"range_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_\",\"page[number]\":\"page_LEFT_SQUARE_BRACE_number_RIGHT_SQUARE_BRACE_\",\"page[size]\":\"page_LEFT_SQUARE_BRACE_size_RIGHT_SQUARE_BRACE_\"}"
+    queryStringOptionsByParam: "{\"filter[id]\":{\"arrayFormat\":\"comma\"},\"filter[project_id]\":{\"arrayFormat\":\"comma\"},\"filter[campus_id]\":{\"arrayFormat\":\"comma\"},\"filter[cursus_id]\":{\"arrayFormat\":\"comma\"},\"filter[estimate_time]\":{\"arrayFormat\":\"comma\"},\"filter[created_at]\":{\"arrayFormat\":\"comma\"},\"filter[updated_at]\":{\"arrayFormat\":\"comma\"},\"filter[begin_at]\":{\"arrayFormat\":\"comma\"},\"filter[end_at]\":{\"arrayFormat\":\"comma\"},\"filter[max_people]\":{\"arrayFormat\":\"comma\"},\"filter[duration_days]\":{\"arrayFormat\":\"comma\"},\"filter[terminating_after]\":{\"arrayFormat\":\"comma\"},\"filter[team_behaviour]\":{\"arrayFormat\":\"comma\"},\"filter[difficulty]\":{\"arrayFormat\":\"comma\"},\"filter[future]\":{\"arrayFormat\":\"comma\"},\"filter[end]\":{\"arrayFormat\":\"comma\"}}"
   ) @source(
     name: "project_sessions"
-    type: "project_sessions_200_response"
+    type: "[query_project_sessions_items]"
     subgraph: "42API"
   )
 }
 
-type ProjectSessions_200Response @source(name: "project_sessions_200_response", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItems @source(name: "query_project_sessions_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   solo: Boolean!
   beginAt: String @source(name: "begin_at", type: "String", subgraph: "42API") 
@@ -161,57 +345,69 @@ type ProjectSessions_200Response @source(name: "project_sessions_200_response", 
   updatedAt: String! @source(name: "updated_at", type: "String!", subgraph: "42API") 
   maxPeople: Int @source(name: "max_people", type: "Int", subgraph: "42API") 
   isSubscriptable: Boolean! @source(name: "is_subscriptable", type: "Boolean!", subgraph: "42API") 
-  scales: [QueryProjectSessionsScalesItems]! @source(
+  scales: [QueryProjectSessionsItemsScalesItems]! @source(
     name: "scales"
-    type: "[query_project_sessions_scales_items]!"
+    type: "[query_project_sessions_items_scales_items]!"
     subgraph: "42API"
   )
-  uploads: [QueryProjectSessionsUploadsItems]! @source(
+  uploads: [QueryProjectSessionsItemsUploadsItems]! @source(
     name: "uploads"
-    type: "[query_project_sessions_uploads_items]!"
+    type: "[query_project_sessions_items_uploads_items]!"
     subgraph: "42API"
   )
   teamBehaviour: String! @source(name: "team_behaviour", type: "String!", subgraph: "42API") 
   commit: String
-  project: QueryProjectSessionsProject! @source(name: "project", type: "query_project_sessions_project!", subgraph: "42API") 
-  campus: QueryProjectSessionsCampus @source(name: "campus", type: "query_project_sessions_campus", subgraph: "42API") 
-  cursus: QueryProjectSessionsCursus @source(name: "cursus", type: "query_project_sessions_cursus", subgraph: "42API") 
-  evaluations: [QueryProjectSessionsEvaluationsItems]! @source(
-    name: "evaluations"
-    type: "[query_project_sessions_evaluations_items]!"
+  project: QueryProjectSessionsItemsProject! @source(
+    name: "project"
+    type: "query_project_sessions_items_project!"
     subgraph: "42API"
   )
-  projectSessionsRules: [QueryProjectSessionsProjectSessionsRulesItems]! @source(
+  campus: QueryProjectSessionsItemsCampus @source(
+    name: "campus"
+    type: "query_project_sessions_items_campus"
+    subgraph: "42API"
+  )
+  cursus: QueryProjectSessionsItemsCursus @source(
+    name: "cursus"
+    type: "query_project_sessions_items_cursus"
+    subgraph: "42API"
+  )
+  evaluations: [QueryProjectSessionsItemsEvaluationsItems]! @source(
+    name: "evaluations"
+    type: "[query_project_sessions_items_evaluations_items]!"
+    subgraph: "42API"
+  )
+  projectSessionsRules: [QueryProjectSessionsItemsProjectSessionsRulesItems]! @source(
     name: "project_sessions_rules"
-    type: "[query_project_sessions_project_sessions_rules_items]!"
+    type: "[query_project_sessions_items_project_sessions_rules_items]!"
     subgraph: "42API"
   )
 }
 
-type QueryProjectSessionsScalesItems @source(name: "query_project_sessions_scales_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsScalesItems @source(name: "query_project_sessions_items_scales_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   correctionNumber: Int! @source(name: "correction_number", type: "Int!", subgraph: "42API") 
   isPrimary: Boolean! @source(name: "is_primary", type: "Boolean!", subgraph: "42API") 
 }
 
-type QueryProjectSessionsUploadsItems @source(name: "query_project_sessions_uploads_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsUploadsItems @source(name: "query_project_sessions_items_uploads_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   name: String!
 }
 
-type QueryProjectSessionsProject @source(name: "query_project_sessions_project", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsProject @source(name: "query_project_sessions_items_project", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   name: String!
   slug: String!
   difficulty: Int
-  parent: QueryProjectSessionsProjectParent @source(
+  parent: QueryProjectSessionsItemsProjectParent @source(
     name: "parent"
-    type: "query_project_sessions_project_parent"
+    type: "query_project_sessions_items_project_parent"
     subgraph: "42API"
   )
-  children: [QueryProjectSessionsProjectChildrenItems]! @source(
+  children: [QueryProjectSessionsItemsProjectChildrenItems]! @source(
     name: "children"
-    type: "[query_project_sessions_project_children_items]!"
+    type: "[query_project_sessions_items_project_children_items]!"
     subgraph: "42API"
   )
   attachments: [JSON]!
@@ -222,27 +418,30 @@ type QueryProjectSessionsProject @source(name: "query_project_sessions_project",
   repository: String
 }
 
-type QueryProjectSessionsProjectParent @source(name: "query_project_sessions_project_parent", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsProjectParent @source(name: "query_project_sessions_items_project_parent", subgraph: "42API")  @join__type(graph: _42_API_)  {
   name: String!
   id: Int!
   slug: String!
   url: String!
 }
 
-type QueryProjectSessionsProjectChildrenItems @source(name: "query_project_sessions_project_children_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsProjectChildrenItems @source(
+  name: "query_project_sessions_items_project_children_items"
+  subgraph: "42API"
+) @join__type(graph: _42_API_)  {
   name: String!
   id: Int!
   slug: String!
   url: String!
 }
 
-type QueryProjectSessionsCampus @source(name: "query_project_sessions_campus", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsCampus @source(name: "query_project_sessions_items_campus", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   name: String!
   timeZone: String! @source(name: "time_zone", type: "String!", subgraph: "42API") 
-  language: QueryProjectSessionsCampusLanguage! @source(
+  language: QueryProjectSessionsItemsCampusLanguage! @source(
     name: "language"
-    type: "query_project_sessions_campus_language!"
+    type: "query_project_sessions_items_campus_language!"
     subgraph: "42API"
   )
   usersCount: Int! @source(name: "users_count", type: "Int!", subgraph: "42API") 
@@ -260,7 +459,7 @@ type QueryProjectSessionsCampus @source(name: "query_project_sessions_campus", s
   defaultHiddenPhone: Boolean! @source(name: "default_hidden_phone", type: "Boolean!", subgraph: "42API") 
 }
 
-type QueryProjectSessionsCampusLanguage @source(name: "query_project_sessions_campus_language", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsCampusLanguage @source(name: "query_project_sessions_items_campus_language", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   name: String!
   identifier: String!
@@ -268,7 +467,7 @@ type QueryProjectSessionsCampusLanguage @source(name: "query_project_sessions_ca
   updatedAt: String! @source(name: "updated_at", type: "String!", subgraph: "42API") 
 }
 
-type QueryProjectSessionsCursus @source(name: "query_project_sessions_cursus", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsCursus @source(name: "query_project_sessions_items_cursus", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   createdAt: String! @source(name: "created_at", type: "String!", subgraph: "42API") 
   name: String!
@@ -276,32 +475,32 @@ type QueryProjectSessionsCursus @source(name: "query_project_sessions_cursus", s
   kind: String!
 }
 
-type QueryProjectSessionsEvaluationsItems @source(name: "query_project_sessions_evaluations_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
+type QueryProjectSessionsItemsEvaluationsItems @source(name: "query_project_sessions_items_evaluations_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
   id: Int!
   kind: String!
 }
 
-type QueryProjectSessionsProjectSessionsRulesItems @source(
-  name: "query_project_sessions_project_sessions_rules_items"
+type QueryProjectSessionsItemsProjectSessionsRulesItems @source(
+  name: "query_project_sessions_items_project_sessions_rules_items"
   subgraph: "42API"
 ) @join__type(graph: _42_API_)  {
   id: Int!
   required: Boolean!
   position: Int!
-  params: [QueryProjectSessionsProjectSessionsRulesItemsParamsItems]! @source(
+  params: [QueryProjectSessionsItemsProjectSessionsRulesItemsParamsItems]! @source(
     name: "params"
-    type: "[query_project_sessions_project_sessions_rules_items_params_items]!"
+    type: "[query_project_sessions_items_project_sessions_rules_items_params_items]!"
     subgraph: "42API"
   )
-  rule: QueryProjectSessionsProjectSessionsRulesItemsRule! @source(
+  rule: QueryProjectSessionsItemsProjectSessionsRulesItemsRule! @source(
     name: "rule"
-    type: "query_project_sessions_project_sessions_rules_items_rule!"
+    type: "query_project_sessions_items_project_sessions_rules_items_rule!"
     subgraph: "42API"
   )
 }
 
-type QueryProjectSessionsProjectSessionsRulesItemsParamsItems @source(
-  name: "query_project_sessions_project_sessions_rules_items_params_items"
+type QueryProjectSessionsItemsProjectSessionsRulesItemsParamsItems @source(
+  name: "query_project_sessions_items_project_sessions_rules_items_params_items"
   subgraph: "42API"
 ) @join__type(graph: _42_API_)  {
   id: Int!
@@ -312,8 +511,8 @@ type QueryProjectSessionsProjectSessionsRulesItemsParamsItems @source(
   updatedAt: String! @source(name: "updated_at", type: "String!", subgraph: "42API") 
 }
 
-type QueryProjectSessionsProjectSessionsRulesItemsRule @source(
-  name: "query_project_sessions_project_sessions_rules_items_rule"
+type QueryProjectSessionsItemsProjectSessionsRulesItemsRule @source(
+  name: "query_project_sessions_items_project_sessions_rules_items_rule"
   subgraph: "42API"
 ) @join__type(graph: _42_API_)  {
   id: Int!

@@ -11,125 +11,321 @@ paths:
       deprecated: false
       description: ''
       tags: []
-      parameters: []
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[project_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[campus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[cursus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[estimate_time]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[begin_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[end_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[max_people]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[duration_days]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[terminating_after]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[solo]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[is_subscriptable]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[team_behaviour]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[difficulty]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[future]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[end]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[project_id]
+          in: query
+          schema:
+            type: string
+        - name: range[campus_id]
+          in: query
+          schema:
+            type: string
+        - name: range[cursus_id]
+          in: query
+          schema:
+            type: string
+        - name: range[estimate_time]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[begin_at]
+          in: query
+          schema:
+            type: string
+        - name: range[end_at]
+          in: query
+          schema:
+            type: string
+        - name: range[max_people]
+          in: query
+          schema:
+            type: string
+        - name: range[duration_days]
+          in: query
+          schema:
+            type: string
+        - name: range[terminating_after]
+          in: query
+          schema:
+            type: string
+        - name: range[solo]
+          in: query
+          schema:
+            type: string
+        - name: range[is_subscriptable]
+          in: query
+          schema:
+            type: string
+        - name: range[team_behaviour]
+          in: query
+          schema:
+            type: string
+        - name: range[difficulty]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  solo:
-                    type: boolean
-                  begin_at:
-                    type: string
-                    nullable: true
-                  end_at:
-                    type: string
-                    nullable: true
-                  estimate_time:
-                    type: string
-                    nullable: true
-                  difficulty:
-                    type: integer
-                    nullable: true
-                  objectives:
-                    type: array
-                    items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    solo:
+                      type: boolean
+                    begin_at:
                       type: string
-                  description:
-                    type: string
-                  duration_days:
-                    type: integer
-                    nullable: true
-                  terminating_after:
-                    type: integer
-                    nullable: true
-                  project_id:
-                    type: integer
-                  campus_id:
-                    type: integer
-                    nullable: true
-                  cursus_id:
-                    type: integer
-                    nullable: true
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
-                  max_people:
-                    type: integer
-                    nullable: true
-                  is_subscriptable:
-                    type: boolean
-                  scales:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        correction_number:
-                          type: integer
-                        is_primary:
-                          type: boolean
-                      required:
-                        - id
-                        - correction_number
-                        - is_primary
-                  uploads:
-                    type: array
-                    items:
+                      nullable: true
+                    end_at:
+                      type: string
+                      nullable: true
+                    estimate_time:
+                      type: string
+                      nullable: true
+                    difficulty:
+                      type: integer
+                      nullable: true
+                    objectives:
+                      type: array
+                      items:
+                        type: string
+                    description:
+                      type: string
+                    duration_days:
+                      type: integer
+                      nullable: true
+                    terminating_after:
+                      type: integer
+                      nullable: true
+                    project_id:
+                      type: integer
+                    campus_id:
+                      type: integer
+                      nullable: true
+                    cursus_id:
+                      type: integer
+                      nullable: true
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    max_people:
+                      type: integer
+                      nullable: true
+                    is_subscriptable:
+                      type: boolean
+                    scales:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          correction_number:
+                            type: integer
+                          is_primary:
+                            type: boolean
+                        required:
+                          - id
+                          - correction_number
+                          - is_primary
+                    uploads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                    team_behaviour:
+                      type: string
+                    commit:
+                      type: string
+                      nullable: true
+                    project:
                       type: object
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
-                  team_behaviour:
-                    type: string
-                  commit:
-                    type: string
-                    nullable: true
-                  project:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                      slug:
-                        type: string
-                      difficulty:
-                        type: integer
-                        nullable: true
-                      parent:
-                        type: object
-                        nullable: true
-                        properties:
-                          name:
-                            type: string
-                          id:
-                            type: integer
-                          slug:
-                            type: string
-                          url:
-                            type: string
-                        required:
-                          - name
-                          - id
-                          - slug
-                          - url
-                      children:
-                        type: array
-                        items:
+                        slug:
+                          type: string
+                        difficulty:
+                          type: integer
+                          nullable: true
+                        parent:
                           type: object
+                          nullable: true
                           properties:
                             name:
                               type: string
@@ -144,234 +340,252 @@ paths:
                             - id
                             - slug
                             - url
-                      attachments:
-                        type: array
-                        items: {}
-                      created_at:
-                        type: string
-                      updated_at:
-                        type: string
-                      exam:
-                        type: boolean
-                      git_id:
-                        type: integer
-                        nullable: true
-                      repository:
-                        type: string
-                        nullable: true
-                    required:
-                      - id
-                      - name
-                      - slug
-                      - difficulty
-                      - parent
-                      - children
-                      - attachments
-                      - created_at
-                      - updated_at
-                      - exam
-                      - git_id
-                      - repository
-                  campus:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                      time_zone:
-                        type: string
-                      language:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          name:
-                            type: string
-                          identifier:
-                            type: string
-                          created_at:
-                            type: string
-                          updated_at:
-                            type: string
-                        required:
-                          - id
-                          - name
-                          - identifier
-                          - created_at
-                          - updated_at
-                      users_count:
-                        type: integer
-                      vogsphere_id:
-                        type: integer
-                      country:
-                        type: string
-                      address:
-                        type: string
-                      zip:
-                        type: string
-                      city:
-                        type: string
-                      website:
-                        type: string
-                      facebook:
-                        type: string
-                      twitter:
-                        type: string
-                      active:
-                        type: boolean
-                      public:
-                        type: boolean
-                      email_extension:
-                        type: string
-                      default_hidden_phone:
-                        type: boolean
-                    required:
-                      - id
-                      - name
-                      - time_zone
-                      - language
-                      - users_count
-                      - vogsphere_id
-                      - country
-                      - address
-                      - zip
-                      - city
-                      - website
-                      - facebook
-                      - twitter
-                      - active
-                      - public
-                      - email_extension
-                      - default_hidden_phone
-                  cursus:
-                    type: object
-                    nullable: true
-                    properties:
-                      id:
-                        type: integer
-                      created_at:
-                        type: string
-                      name:
-                        type: string
-                      slug:
-                        type: string
-                      kind:
-                        type: string
-                    required:
-                      - id
-                      - created_at
-                      - name
-                      - slug
-                      - kind
-                  evaluations:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        kind:
-                          type: string
-                      required:
-                        - id
-                        - kind
-                  project_sessions_rules:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        required:
-                          type: boolean
-                        position:
-                          type: integer
-                        params:
+                        children:
                           type: array
                           items:
                             type: object
                             properties:
+                              name:
+                                type: string
                               id:
                                 type: integer
-                              param_id:
-                                type: integer
-                              project_sessions_rule_id:
-                                type: integer
-                              value:
+                              slug:
                                 type: string
-                              created_at:
-                                type: string
-                              updated_at:
+                              url:
                                 type: string
                             required:
+                              - name
                               - id
-                              - param_id
-                              - project_sessions_rule_id
-                              - value
-                              - created_at
-                              - updated_at
-                        rule:
+                              - slug
+                              - url
+                        attachments:
+                          type: array
+                          items: {}
+                        created_at:
+                          type: string
+                        updated_at:
+                          type: string
+                        exam:
+                          type: boolean
+                        git_id:
+                          type: integer
+                          nullable: true
+                        repository:
+                          type: string
+                          nullable: true
+                      required:
+                        - id
+                        - name
+                        - slug
+                        - difficulty
+                        - parent
+                        - children
+                        - attachments
+                        - created_at
+                        - updated_at
+                        - exam
+                        - git_id
+                        - repository
+                    campus:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        time_zone:
+                          type: string
+                        language:
                           type: object
                           properties:
                             id:
                               type: integer
-                            kind:
-                              type: string
                             name:
                               type: string
-                            description:
+                            identifier:
                               type: string
                             created_at:
                               type: string
                             updated_at:
                               type: string
-                            slug:
-                              type: string
-                            internal_name:
-                              type: string
                           required:
                             - id
-                            - kind
                             - name
-                            - description
+                            - identifier
                             - created_at
                             - updated_at
-                            - slug
-                            - internal_name
+                        users_count:
+                          type: integer
+                        vogsphere_id:
+                          type: integer
+                        country:
+                          type: string
+                        address:
+                          type: string
+                        zip:
+                          type: string
+                        city:
+                          type: string
+                        website:
+                          type: string
+                        facebook:
+                          type: string
+                        twitter:
+                          type: string
+                        active:
+                          type: boolean
+                        public:
+                          type: boolean
+                        email_extension:
+                          type: string
+                        default_hidden_phone:
+                          type: boolean
                       required:
                         - id
-                        - required
-                        - position
-                        - params
-                        - rule
-                required:
-                  - id
-                  - solo
-                  - begin_at
-                  - end_at
-                  - estimate_time
-                  - difficulty
-                  - objectives
-                  - description
-                  - duration_days
-                  - terminating_after
-                  - project_id
-                  - campus_id
-                  - cursus_id
-                  - created_at
-                  - updated_at
-                  - max_people
-                  - is_subscriptable
-                  - scales
-                  - uploads
-                  - team_behaviour
-                  - commit
-                  - project
-                  - campus
-                  - cursus
-                  - evaluations
-                  - project_sessions_rules
+                        - name
+                        - time_zone
+                        - language
+                        - users_count
+                        - vogsphere_id
+                        - country
+                        - address
+                        - zip
+                        - city
+                        - website
+                        - facebook
+                        - twitter
+                        - active
+                        - public
+                        - email_extension
+                        - default_hidden_phone
+                    cursus:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: integer
+                        created_at:
+                          type: string
+                        name:
+                          type: string
+                        slug:
+                          type: string
+                        kind:
+                          type: string
+                      required:
+                        - id
+                        - created_at
+                        - name
+                        - slug
+                        - kind
+                    evaluations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          kind:
+                            type: string
+                        required:
+                          - id
+                          - kind
+                    project_sessions_rules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          required:
+                            type: boolean
+                          position:
+                            type: integer
+                          params:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                param_id:
+                                  type: integer
+                                project_sessions_rule_id:
+                                  type: integer
+                                value:
+                                  type: string
+                                created_at:
+                                  type: string
+                                updated_at:
+                                  type: string
+                              required:
+                                - id
+                                - param_id
+                                - project_sessions_rule_id
+                                - value
+                                - created_at
+                                - updated_at
+                          rule:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              kind:
+                                type: string
+                              name:
+                                type: string
+                              description:
+                                type: string
+                              created_at:
+                                type: string
+                              updated_at:
+                                type: string
+                              slug:
+                                type: string
+                              internal_name:
+                                type: string
+                            required:
+                              - id
+                              - kind
+                              - name
+                              - description
+                              - created_at
+                              - updated_at
+                              - slug
+                              - internal_name
+                        required:
+                          - id
+                          - required
+                          - position
+                          - params
+                          - rule
+                  required:
+                    - id
+                    - solo
+                    - begin_at
+                    - end_at
+                    - estimate_time
+                    - difficulty
+                    - objectives
+                    - description
+                    - duration_days
+                    - terminating_after
+                    - project_id
+                    - campus_id
+                    - cursus_id
+                    - created_at
+                    - updated_at
+                    - max_people
+                    - is_subscriptable
+                    - scales
+                    - uploads
+                    - team_behaviour
+                    - commit
+                    - project
+                    - campus
+                    - cursus
+                    - evaluations
+                    - project_sessions_rules
           headers: {}
       security: []

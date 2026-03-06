@@ -288,6 +288,54 @@ function countSchemaStats(schema: OpenAPISchema, stats?: SchemaStats): SchemaSta
 /**
  * full.json と nullable.json からスキーマを推論し、openapi.yml を更新する
  */
+/**
+ * operation の parameters を更新する
+ */
+export function updateParameters(
+  endpointPath: string,
+  method: string,
+  parameters: unknown[],
+  dryRun: boolean,
+): void {
+  console.log(`\n=== apidoc パラメータ更新 ===`)
+  console.log(`エンドポイント: ${method} ${endpointPath}`)
+  console.log(`パラメータ数:   ${parameters.length}`)
+  console.log()
+
+  if (dryRun) {
+    console.log('--- 生成されるパラメータ ---')
+    for (const p of parameters) {
+      console.log(`  ${(p as { name: string }).name}`)
+    }
+    console.log('--- dry-run のため openapi.yml は更新しません ---')
+    return
+  }
+
+  const doc = readOrCreateOpenApiDoc() as OpenAPIDocument
+
+  if (!doc.paths?.[endpointPath]) {
+    console.warn(`[apidoc] パス ${endpointPath} が openapi.yml に存在しません。スキップします。`)
+    return
+  }
+
+  const methodLower = method.toLowerCase()
+  const operation = doc.paths[endpointPath][methodLower] as OpenAPIOperation | undefined
+
+  if (!operation) {
+    console.warn(
+      `[apidoc] メソッド ${method} が ${endpointPath} に存在しません。スキップします。`,
+    )
+    return
+  }
+
+  operation.parameters = parameters
+
+  const output = yaml.dump(doc, YAML_DUMP_OPTIONS)
+  writeFileSync(OPENAPI_PATH, output)
+
+  console.log(`openapi.yml のパラメータを更新しました: ${method} ${endpointPath}`)
+}
+
 export function updateSchema(
   fullJson: unknown,
   nullableJson: unknown | undefined,
