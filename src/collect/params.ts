@@ -26,10 +26,16 @@ export function buildOpenAPIParameters(
 
   // sort
   if (apidocParams.sort.length > 0) {
+    const enumValues = [
+      ...apidocParams.sort,
+      ...apidocParams.sort.map((field) => `-${field}`),
+    ]
     parameters.push({
       name: 'sort',
       in: 'query',
-      schema: { type: 'string' },
+      style: 'form',
+      explode: false,
+      schema: { type: 'array', items: { type: 'string', enum: enumValues } },
     })
   }
 

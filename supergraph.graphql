@@ -9,7 +9,7 @@ schema
     
     @link(
   url: "https://the-guild.dev/graphql/mesh/spec/v1.0"
-  import: ["@httpOperation", "@transport", "@source", "@extraSchemaDefinitionDirective"]
+  import: ["@enum", "@httpOperation", "@transport", "@source", "@extraSchemaDefinitionDirective"]
 )
   {
     query: Query
@@ -91,6 +91,8 @@ enum join__Graph {
   _42_API_ @join__graph(name: "42API", url: "http://api.intra.42.fr/v2/") 
 }
 
+directive @enum(subgraph: String, value: String)  repeatable on ENUM_VALUE
+
 directive @httpOperation(
   subgraph: String
   path: String
@@ -132,7 +134,11 @@ type Query @extraSchemaDefinitionDirective(
   directives: {transport: [{subgraph: "42API", kind: "rest", location: "http://api.intra.42.fr/v2/"}]}
 ) @join__type(graph: _42_API_)  {
   projectSessions(
-    sort: String
+    sort: [QueryInputProjectSessionsSortItems] @source(
+      name: "sort"
+      type: "[queryInput_project_sessions_sort_items]"
+      subgraph: "42API"
+    )
     id: [Int] @source(
       name: "filter_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_"
       type: "[Int]"
@@ -223,82 +229,82 @@ type Query @extraSchemaDefinitionDirective(
       type: "[String]"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceIdRightSquareBrace: String @source(
+    rangeId: String @source(
       name: "range_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceProjectIdRightSquareBrace: String @source(
+    rangeProjectId: String @source(
       name: "range_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceCampusIdRightSquareBrace: String @source(
+    rangeCampusId: String @source(
       name: "range_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceCursusIdRightSquareBrace: String @source(
+    rangeCursusId: String @source(
       name: "range_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceEstimateTimeRightSquareBrace: String @source(
+    rangeEstimateTime: String @source(
       name: "range_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceCreatedAtRightSquareBrace: String @source(
+    rangeCreatedAt: String @source(
       name: "range_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceUpdatedAtRightSquareBrace: String @source(
+    rangeUpdatedAt: String @source(
       name: "range_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceBeginAtRightSquareBrace: String @source(
+    rangeBeginAt: String @source(
       name: "range_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceEndAtRightSquareBrace: String @source(
+    rangeEndAt: String @source(
       name: "range_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceMaxPeopleRightSquareBrace: String @source(
+    rangeMaxPeople: String @source(
       name: "range_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceDurationDaysRightSquareBrace: String @source(
+    rangeDurationDays: String @source(
       name: "range_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceTerminatingAfterRightSquareBrace: String @source(
+    rangeTerminatingAfter: String @source(
       name: "range_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceSoloRightSquareBrace: String @source(
+    rangeSolo: String @source(
       name: "range_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceIsSubscriptableRightSquareBrace: String @source(
+    rangeIsSubscriptable: String @source(
       name: "range_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceTeamBehaviourRightSquareBrace: String @source(
+    rangeTeamBehaviour: String @source(
       name: "range_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
     )
-    rangeLeftSquareBraceDifficultyRightSquareBrace: String @source(
+    rangeDifficulty: String @source(
       name: "range_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_"
       type: "String"
       subgraph: "42API"
@@ -319,7 +325,7 @@ type Query @extraSchemaDefinitionDirective(
     operationSpecificHeaders: [["accept", "application/json"]]
     httpMethod: GET
     queryParamArgMap: "{\"sort\":\"sort\",\"filter[id]\":\"filter_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_\",\"filter[project_id]\":\"filter_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_\",\"filter[campus_id]\":\"filter_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_\",\"filter[cursus_id]\":\"filter_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_\",\"filter[estimate_time]\":\"filter_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_\",\"filter[created_at]\":\"filter_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_\",\"filter[updated_at]\":\"filter_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_\",\"filter[begin_at]\":\"filter_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_\",\"filter[end_at]\":\"filter_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_\",\"filter[max_people]\":\"filter_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_\",\"filter[duration_days]\":\"filter_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_\",\"filter[terminating_after]\":\"filter_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_\",\"filter[solo]\":\"filter_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_\",\"filter[is_subscriptable]\":\"filter_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_\",\"filter[team_behaviour]\":\"filter_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_\",\"filter[difficulty]\":\"filter_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_\",\"filter[future]\":\"filter_LEFT_SQUARE_BRACE_future_RIGHT_SQUARE_BRACE_\",\"filter[end]\":\"filter_LEFT_SQUARE_BRACE_end_RIGHT_SQUARE_BRACE_\",\"range[id]\":\"range_LEFT_SQUARE_BRACE_id_RIGHT_SQUARE_BRACE_\",\"range[project_id]\":\"range_LEFT_SQUARE_BRACE_project_id_RIGHT_SQUARE_BRACE_\",\"range[campus_id]\":\"range_LEFT_SQUARE_BRACE_campus_id_RIGHT_SQUARE_BRACE_\",\"range[cursus_id]\":\"range_LEFT_SQUARE_BRACE_cursus_id_RIGHT_SQUARE_BRACE_\",\"range[estimate_time]\":\"range_LEFT_SQUARE_BRACE_estimate_time_RIGHT_SQUARE_BRACE_\",\"range[created_at]\":\"range_LEFT_SQUARE_BRACE_created_at_RIGHT_SQUARE_BRACE_\",\"range[updated_at]\":\"range_LEFT_SQUARE_BRACE_updated_at_RIGHT_SQUARE_BRACE_\",\"range[begin_at]\":\"range_LEFT_SQUARE_BRACE_begin_at_RIGHT_SQUARE_BRACE_\",\"range[end_at]\":\"range_LEFT_SQUARE_BRACE_end_at_RIGHT_SQUARE_BRACE_\",\"range[max_people]\":\"range_LEFT_SQUARE_BRACE_max_people_RIGHT_SQUARE_BRACE_\",\"range[duration_days]\":\"range_LEFT_SQUARE_BRACE_duration_days_RIGHT_SQUARE_BRACE_\",\"range[terminating_after]\":\"range_LEFT_SQUARE_BRACE_terminating_after_RIGHT_SQUARE_BRACE_\",\"range[solo]\":\"range_LEFT_SQUARE_BRACE_solo_RIGHT_SQUARE_BRACE_\",\"range[is_subscriptable]\":\"range_LEFT_SQUARE_BRACE_is_subscriptable_RIGHT_SQUARE_BRACE_\",\"range[team_behaviour]\":\"range_LEFT_SQUARE_BRACE_team_behaviour_RIGHT_SQUARE_BRACE_\",\"range[difficulty]\":\"range_LEFT_SQUARE_BRACE_difficulty_RIGHT_SQUARE_BRACE_\",\"page[number]\":\"page_LEFT_SQUARE_BRACE_number_RIGHT_SQUARE_BRACE_\",\"page[size]\":\"page_LEFT_SQUARE_BRACE_size_RIGHT_SQUARE_BRACE_\"}"
-    queryStringOptionsByParam: "{\"filter[id]\":{\"arrayFormat\":\"comma\"},\"filter[project_id]\":{\"arrayFormat\":\"comma\"},\"filter[campus_id]\":{\"arrayFormat\":\"comma\"},\"filter[cursus_id]\":{\"arrayFormat\":\"comma\"},\"filter[estimate_time]\":{\"arrayFormat\":\"comma\"},\"filter[created_at]\":{\"arrayFormat\":\"comma\"},\"filter[updated_at]\":{\"arrayFormat\":\"comma\"},\"filter[begin_at]\":{\"arrayFormat\":\"comma\"},\"filter[end_at]\":{\"arrayFormat\":\"comma\"},\"filter[max_people]\":{\"arrayFormat\":\"comma\"},\"filter[duration_days]\":{\"arrayFormat\":\"comma\"},\"filter[terminating_after]\":{\"arrayFormat\":\"comma\"},\"filter[team_behaviour]\":{\"arrayFormat\":\"comma\"},\"filter[difficulty]\":{\"arrayFormat\":\"comma\"},\"filter[future]\":{\"arrayFormat\":\"comma\"},\"filter[end]\":{\"arrayFormat\":\"comma\"}}"
+    queryStringOptionsByParam: "{\"sort\":{\"arrayFormat\":\"comma\"},\"filter[id]\":{\"arrayFormat\":\"comma\"},\"filter[project_id]\":{\"arrayFormat\":\"comma\"},\"filter[campus_id]\":{\"arrayFormat\":\"comma\"},\"filter[cursus_id]\":{\"arrayFormat\":\"comma\"},\"filter[estimate_time]\":{\"arrayFormat\":\"comma\"},\"filter[created_at]\":{\"arrayFormat\":\"comma\"},\"filter[updated_at]\":{\"arrayFormat\":\"comma\"},\"filter[begin_at]\":{\"arrayFormat\":\"comma\"},\"filter[end_at]\":{\"arrayFormat\":\"comma\"},\"filter[max_people]\":{\"arrayFormat\":\"comma\"},\"filter[duration_days]\":{\"arrayFormat\":\"comma\"},\"filter[terminating_after]\":{\"arrayFormat\":\"comma\"},\"filter[team_behaviour]\":{\"arrayFormat\":\"comma\"},\"filter[difficulty]\":{\"arrayFormat\":\"comma\"},\"filter[future]\":{\"arrayFormat\":\"comma\"},\"filter[end]\":{\"arrayFormat\":\"comma\"}}"
   ) @source(
     name: "project_sessions"
     type: "[query_project_sessions_items]"
@@ -523,6 +529,51 @@ type QueryProjectSessionsItemsProjectSessionsRulesItemsRule @source(
   updatedAt: String! @source(name: "updated_at", type: "String!", subgraph: "42API") 
   slug: String!
   internalName: String! @source(name: "internal_name", type: "String!", subgraph: "42API") 
+}
+
+enum QueryInputProjectSessionsSortItems @source(name: "queryInput_project_sessions_sort_items", subgraph: "42API")  @join__type(graph: _42_API_)  {
+  id @join__enumValue(graph: _42_API_) 
+  projectId @source(name: "project_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  campusId @source(name: "campus_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  cursusId @source(name: "cursus_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  estimateTime @source(name: "estimate_time", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  createdAt @source(name: "created_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  updatedAt @source(name: "updated_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  beginAt @source(name: "begin_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  endAt @source(name: "end_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  maxPeople @source(name: "max_people", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  durationDays @source(name: "duration_days", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  terminatingAfter @source(name: "terminating_after", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  solo @join__enumValue(graph: _42_API_) 
+  isSubscriptable @source(name: "is_subscriptable", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  minimumMark @source(name: "minimum_mark", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  teamBehaviour @source(name: "team_behaviour", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  commit @join__enumValue(graph: _42_API_) 
+  difficulty @join__enumValue(graph: _42_API_) 
+  description @join__enumValue(graph: _42_API_) 
+  objectives @join__enumValue(graph: _42_API_) 
+  divisor @join__enumValue(graph: _42_API_) 
+  descId @enum(subgraph: "42API", value: "\"-id\"")  @source(name: "_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descProjectId @enum(subgraph: "42API", value: "\"-project_id\"")  @source(name: "_project_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descCampusId @enum(subgraph: "42API", value: "\"-campus_id\"")  @source(name: "_campus_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descCursusId @enum(subgraph: "42API", value: "\"-cursus_id\"")  @source(name: "_cursus_id", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descEstimateTime @enum(subgraph: "42API", value: "\"-estimate_time\"")  @source(name: "_estimate_time", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descCreatedAt @enum(subgraph: "42API", value: "\"-created_at\"")  @source(name: "_created_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descUpdatedAt @enum(subgraph: "42API", value: "\"-updated_at\"")  @source(name: "_updated_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descBeginAt @enum(subgraph: "42API", value: "\"-begin_at\"")  @source(name: "_begin_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descEndAt @enum(subgraph: "42API", value: "\"-end_at\"")  @source(name: "_end_at", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descMaxPeople @enum(subgraph: "42API", value: "\"-max_people\"")  @source(name: "_max_people", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descDurationDays @enum(subgraph: "42API", value: "\"-duration_days\"")  @source(name: "_duration_days", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descTerminatingAfter @enum(subgraph: "42API", value: "\"-terminating_after\"")  @source(name: "_terminating_after", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descSolo @enum(subgraph: "42API", value: "\"-solo\"")  @source(name: "_solo", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descIsSubscriptable @enum(subgraph: "42API", value: "\"-is_subscriptable\"")  @source(name: "_is_subscriptable", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descMinimumMark @enum(subgraph: "42API", value: "\"-minimum_mark\"")  @source(name: "_minimum_mark", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descTeamBehaviour @enum(subgraph: "42API", value: "\"-team_behaviour\"")  @source(name: "_team_behaviour", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descCommit @enum(subgraph: "42API", value: "\"-commit\"")  @source(name: "_commit", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descDifficulty @enum(subgraph: "42API", value: "\"-difficulty\"")  @source(name: "_difficulty", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descDescription @enum(subgraph: "42API", value: "\"-description\"")  @source(name: "_description", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descObjectives @enum(subgraph: "42API", value: "\"-objectives\"")  @source(name: "_objectives", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
+  descDivisor @enum(subgraph: "42API", value: "\"-divisor\"")  @source(name: "_divisor", subgraph: "42API")  @join__enumValue(graph: _42_API_) 
 }
 
 enum HttpMethod @source(name: "HTTPMethod", subgraph: "42API")  @join__type(graph: _42_API_)  {

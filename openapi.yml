@@ -14,8 +14,55 @@ paths:
       parameters:
         - name: sort
           in: query
+          style: form
+          explode: false
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - project_id
+                - campus_id
+                - cursus_id
+                - estimate_time
+                - created_at
+                - updated_at
+                - begin_at
+                - end_at
+                - max_people
+                - duration_days
+                - terminating_after
+                - solo
+                - is_subscriptable
+                - minimum_mark
+                - team_behaviour
+                - commit
+                - difficulty
+                - description
+                - objectives
+                - divisor
+                - '-id'
+                - '-project_id'
+                - '-campus_id'
+                - '-cursus_id'
+                - '-estimate_time'
+                - '-created_at'
+                - '-updated_at'
+                - '-begin_at'
+                - '-end_at'
+                - '-max_people'
+                - '-duration_days'
+                - '-terminating_after'
+                - '-solo'
+                - '-is_subscriptable'
+                - '-minimum_mark'
+                - '-team_behaviour'
+                - '-commit'
+                - '-difficulty'
+                - '-description'
+                - '-objectives'
+                - '-divisor'
         - name: filter[id]
           in: query
           style: form

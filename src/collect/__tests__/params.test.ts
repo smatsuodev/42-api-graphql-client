@@ -11,12 +11,17 @@ function emptyParams(): ApidocParams {
 // ─── sort パラメータ ──────────────────────────────────────────────────────────
 
 describe('buildOpenAPIParameters - sort', () => {
-  test('sortフィールドがある場合sortパラメータを生成する', () => {
+  test('sortフィールドがある場合sortパラメータをenum付きarray型で生成する', () => {
     const params = buildOpenAPIParameters({ ...emptyParams(), sort: ['id', 'name'] })
     const sortParam = params.find((p) => p.name === 'sort')
     expect(sortParam).toBeDefined()
     expect(sortParam!.in).toBe('query')
-    expect(sortParam!.schema).toEqual({ type: 'string' })
+    expect(sortParam!.style).toBe('form')
+    expect(sortParam!.explode).toBe(false)
+    expect(sortParam!.schema).toEqual({
+      type: 'array',
+      items: { type: 'string', enum: ['id', 'name', '-id', '-name'] },
+    })
   })
 
   test('sortフィールドが空の場合sortパラメータを生成しない', () => {
