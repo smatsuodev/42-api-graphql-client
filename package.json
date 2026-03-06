@@ -17,8 +17,8 @@
   "scripts": {
     "collect": "bun src/collect/index.ts",
     "build": "mesh-compose -o supergraph.graphql",
-    "start": "hive-gateway supergraph",
-    "dev": "chokidar \"openapi.yml\" \"*.config.ts\" -c \"pkill -f 'bun run start'; bun scripts/fix-filter-params.ts; bun run build; bun run start\" --initial",
+    "start": "bun run build; hive-gateway supergraph",
+    "dev": "chokidar \"openapi.yml\" \"*.config.ts\" -c \"pkill -f 'bun run start'; bun run build; bun run start\" --initial",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",

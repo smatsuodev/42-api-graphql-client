@@ -636,3 +636,167 @@ paths:
                     - project_sessions_rules
           headers: {}
       security: []
+  /cursus:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - created_at
+                - updated_at
+                - slug
+                - kind
+                - restricted
+                - is_subscriptable
+                - '-id'
+                - '-name'
+                - '-created_at'
+                - '-updated_at'
+                - '-slug'
+                - '-kind'
+                - '-restricted'
+                - '-is_subscriptable'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[slug]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[kind]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[restricted]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[is_subscriptable]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[name]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[slug]
+          in: query
+          schema:
+            type: string
+        - name: range[kind]
+          in: query
+          schema:
+            type: string
+        - name: range[restricted]
+          in: query
+          schema:
+            type: string
+        - name: range[is_subscriptable]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    created_at:
+                      type: string
+                    name:
+                      type: string
+                    slug:
+                      type: string
+                    kind:
+                      type: string
+                  required:
+                    - id
+                    - created_at
+                    - name
+                    - slug
+                    - kind
+          headers: {}
+      security: []
