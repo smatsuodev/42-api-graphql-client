@@ -4,3 +4,4 @@ node_modules
 scripts/output
 .collect-snapshot
 *.graphql
+dashboard/dist
