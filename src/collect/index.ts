@@ -25,7 +25,9 @@ import { readOrCreateOpenApiDoc } from './openapi'
 import { fetchApidocParams } from './apidoc'
 import { buildOpenAPIParameters, extractFieldTypes } from './params'
 import { loadSnapshot, removeSnapshot, saveSnapshot } from './snapshot'
-import { loadAllCachedPages, loadPageCache, savePageCache } from './cache'
+import { loadAllCachedPages, loadPageCache, loadProbeCache, savePageCache, saveProbeCache } from './cache'
+import { isBooleanLikeField, probeBooleanFields, probeNullableFields } from './prober'
+import type { ApidocParams } from './apidoc'
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
 
@@ -44,7 +46,9 @@ export interface ParsedArgs {
   method: string
   dryRun: boolean
   resume: boolean
+  sequential: boolean
   skip: Set<Step>
+  params: Map<string, string>
 }
 
 export function parseArgs(argv?: string[]): ParsedArgs {
@@ -65,6 +69,9 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   --method <METHOD>  HTTP メソッド (デフォルト: GET)
   --dry-run          openapi.yml を書き換えず、スキーマ統計のみ表示
   --resume           前回中断したスナップショットから再開
+  --sequential       逐次取得モード (プローブベースの判定を使わない)
+  --param <key=value> クエリパラメータを追加 (複数回指定可)
+                     例: --param "filter[campus_id]=26"
   --skip <steps>     スキップするステップをカンマ区切りで指定
                      (${VALID_STEPS.join(', ')})
   --help, -h         このヘルプを表示
@@ -83,7 +90,9 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   let offset = 0
   let dryRun = false
   let resume = false
+  let sequential = false
   const skip = new Set<Step>()
+  const params = new Map<string, string>()
   const positional: string[] = []
 
   for (let i = 0; i < args.length; i++) {
@@ -107,6 +116,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       dryRun = true
     } else if (arg === '--resume') {
       resume = true
+    } else if (arg === '--sequential') {
+      sequential = true
     } else if (arg === '--skip' && args[i + 1]) {
       for (const s of args[i + 1]!.split(',')) {
         const trimmed = s.trim()
@@ -117,6 +128,14 @@ export function parseArgs(argv?: string[]): ParsedArgs {
         }
         skip.add(trimmed as Step)
       }
+      i++
+    } else if (arg === '--param' && args[i + 1]) {
+      const value = args[i + 1]!
+      const eqIndex = value.indexOf('=')
+      if (eqIndex === -1) {
+        throw new Error('--param は key=value 形式で指定してください')
+      }
+      params.set(value.slice(0, eqIndex), value.slice(eqIndex + 1))
       i++
     } else if (arg.startsWith('-')) {
       throw new Error(`不明なオプション: ${arg}`)
@@ -132,7 +151,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   // 先頭の / を除去
   const endpoint = positional[0]!.replace(/^\//, '')
 
-  return { endpoint, maxPages, offset, method, dryRun, resume, skip }
+  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, skip, params }
 }
 
 // ─── メイン処理 ──────────────────────────────────────────────────────────────
@@ -145,7 +164,9 @@ async function main(): Promise<void> {
     method,
     dryRun,
     resume,
+    sequential,
     skip,
+    params,
   } = parseArgs()
   const safeName = endpoint.replace(/\//g, '_')
 
@@ -187,16 +208,37 @@ async function main(): Promise<void> {
 
   console.log('\n=== 42 API レスポンス収集 ===')
   console.log(`エンドポイント: ${API_BASE}/${endpoint}`)
+  console.log(`モード: ${sequential ? 'sequential' : 'probe'}`)
   console.log(`開始ページ: ${startPage}`)
   console.log(`最大ページ数: ${maxPages}`)
   console.log(`ページサイズ: ${PAGE_SIZE}`)
   console.log(`HTTP メソッド: ${method}`)
   console.log(`dry-run: ${dryRun}`)
   console.log(`resume: ${resume}`)
+  if (params.size > 0) {
+    console.log(`params: ${[...params].map(([k, v]) => `${k}=${v}`).join(', ')}`)
+  }
   if (skip.size > 0) {
     console.log(`skip: ${[...skip].join(', ')}`)
   }
   console.log(`出力先: ${endpointDir}/\n`)
+
+  // ─── apidoc 取得 (probe モードで使用) ──────────────────────────────────
+
+  let apidocParams: ApidocParams | null = null
+
+  if (!sequential && !skip.has('fetch')) {
+    try {
+      apidocParams = await fetchApidocParams(safeName)
+      console.log(
+        `[apidoc] sort: ${apidocParams.sort.length}, filter: ${apidocParams.filter.length}, range: ${apidocParams.range.length}, page: ${apidocParams.hasPage}`,
+      )
+    } catch (err) {
+      console.warn(
+        `[apidoc] パラメータ取得に失敗しました。プローブをスキップして通常 fetch にフォールバックします: ${err instanceof Error ? err.message : err}`,
+      )
+    }
+  }
 
   // ─── Step 1-2: API 収集 ────────────────────────────────────────────────
 
@@ -204,6 +246,71 @@ async function main(): Promise<void> {
   let nullable: unknown
 
   if (!skip.has('fetch')) {
+    // ─── Probe モード (デフォルト) ────────────────────────────────────────
+    if (!sequential && apidocParams && apidocParams.filter.length > 0) {
+      console.log(`\n[probe] ${apidocParams.filter.length} 個の filter フィールドをプローブします...\n`)
+      const probeResult = await probeNullableFields(endpoint, apidocParams.filter)
+
+      // probe アイテムをキャッシュ + CoverageTracker に投入
+      if (probeResult.probeItems.length > 0) {
+        saveProbeCache(endpointDir, probeResult.probeItems)
+        for (const item of probeResult.probeItems) {
+          tracker.update(item)
+        }
+      }
+
+      // non-nullable フィールドをカバレッジに反映
+      for (const field of probeResult.nonNullableFields) {
+        tracker.markNonNullable(field)
+      }
+
+      // probe サマリー表示
+      console.log('\n=== Probe サマリー ===')
+      const allFields = apidocParams.filter.map((f) => {
+          if (probeResult.nullableFields.has(f)) return { field: f, nullable: 'nullable' as const }
+          if (probeResult.nonNullableFields.has(f)) return { field: f, nullable: 'non-nullable' as const }
+          return { field: f, nullable: 'failed' as const }
+        })
+      for (const { field, nullable } of allFields) {
+        const cov = tracker.toJSON()[field]
+        const value = cov?.hasValue ? '✓' : '-'
+        const nil = cov?.hasNull ? '✓' : '-'
+        console.log(`  ${field.padEnd(30)} ${nullable.padEnd(14)} value=${value}  null=${nil}`)
+      }
+      tracker.printProgress()
+
+      // ─── Boolean probe ──────────────────────────────────────────────────
+      const booleanFields = apidocParams.filter.filter(isBooleanLikeField)
+      if (booleanFields.length > 0) {
+        console.log(`\n[probe:bool] ${booleanFields.length} 個の boolean フィールドをプローブします...\n`)
+
+        // nullable probe のアイテム id から seenIds を構築
+        const seenIds = new Set<unknown>()
+        for (const item of probeResult.probeItems) {
+          if (item.id !== undefined) seenIds.add(item.id)
+        }
+
+        const boolResult = await probeBooleanFields(endpoint, booleanFields, seenIds)
+
+        if (boolResult.probeItems.length > 0) {
+          // nullable probe アイテムとマージして上書き保存
+          const mergedProbeItems = [...probeResult.probeItems, ...boolResult.probeItems]
+          saveProbeCache(endpointDir, mergedProbeItems)
+
+          for (const item of boolResult.probeItems) {
+            tracker.update(item)
+          }
+        }
+
+        console.log(`\n[probe:bool] ${boolResult.probeItems.length} 件の新規アイテムを取得`)
+        if (boolResult.failedFields.length > 0) {
+          console.log(`[probe:bool] 失敗: ${boolResult.failedFields.join(', ')}`)
+        }
+        tracker.printProgress()
+      }
+    }
+
+    // ─── 通常 fetch (probe/sequential 共通) ──────────────────────────────
     await fetchAllPages(
       endpoint,
       maxPages,
@@ -216,6 +323,7 @@ async function main(): Promise<void> {
         tracker.printProgress()
       },
       {
+        params,
         loadCachedPage: (page) => loadPageCache(pagesDir, page)?.items ?? null,
         onPageData: (page, items) => {
           savePageCache(pagesDir, page, items)
@@ -234,9 +342,11 @@ async function main(): Promise<void> {
       },
     )
 
-    // 全キャッシュ済みページからアイテムをマージ
+    // 全キャッシュ済みページ + probe アイテムをマージ
     const allCachedPages = loadAllCachedPages(pagesDir)
-    const allItems = allCachedPages.flatMap((p) => p.items)
+    const pageItems = allCachedPages.flatMap((p) => p.items)
+    const probeItems = loadProbeCache(endpointDir) ?? []
+    const allItems = mergeItems(pageItems, probeItems)
 
     if (allItems.length === 0) {
       throw new Error('レスポンスを 1 件も取得できませんでした')
@@ -294,14 +404,17 @@ async function main(): Promise<void> {
     console.log('[skip] schema をスキップしました')
   }
 
-  // ─── Step 5.5: apidoc パラメータ取得 ──────────────────────────────────
+  // ─── Step 5.5: apidoc パラメータ更新 ──────────────────────────────────
 
   if (!skip.has('apidoc')) {
     try {
-      const apidocParams = await fetchApidocParams(safeName)
-      console.log(
-        `[apidoc] sort: ${apidocParams.sort.length}, filter: ${apidocParams.filter.length}, range: ${apidocParams.range.length}, page: ${apidocParams.hasPage}`,
-      )
+      // probe モードで既に取得済みなら再利用
+      if (!apidocParams) {
+        apidocParams = await fetchApidocParams(safeName)
+        console.log(
+          `[apidoc] sort: ${apidocParams.sort.length}, filter: ${apidocParams.filter.length}, range: ${apidocParams.range.length}, page: ${apidocParams.hasPage}`,
+        )
+      }
 
       // レスポンススキーマからフィールド型マップを構築
       const doc = readOrCreateOpenApiDoc()
@@ -346,6 +459,34 @@ async function main(): Promise<void> {
   console.log('[snapshot] スナップショットを削除しました')
 
   console.log('\n完了！')
+}
+
+/**
+ * ページアイテムと probe アイテムを id ベースで重複排除してマージする
+ */
+function mergeItems(
+  pageItems: Record<string, unknown>[],
+  probeItems: Record<string, unknown>[],
+): Record<string, unknown>[] {
+  if (probeItems.length === 0) return pageItems
+
+  const seenIds = new Set<unknown>()
+  const merged: Record<string, unknown>[] = []
+
+  for (const item of pageItems) {
+    const id = item.id
+    if (id !== undefined) seenIds.add(id)
+    merged.push(item)
+  }
+
+  for (const item of probeItems) {
+    const id = item.id
+    if (id !== undefined && seenIds.has(id)) continue
+    if (id !== undefined) seenIds.add(id)
+    merged.push(item)
+  }
+
+  return merged
 }
 
 if (import.meta.main) {

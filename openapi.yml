@@ -1372,3 +1372,350 @@ paths:
                     - endpoint
           headers: {}
       security: []
+  /users:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - login
+                - email
+                - encrypted_password
+                - reset_password_token
+                - reset_password_sent_at
+                - created_at
+                - updated_at
+                - image
+                - first_name
+                - last_name
+                - pool_year
+                - pool_month
+                - kind
+                - status
+                - otp_secret_key
+                - otp_tmp
+                - otp_activated
+                - otp_backup_passwords
+                - slack_team
+                - slack_login
+                - slack_mail
+                - slack_code_validation
+                - slack_validated_at
+                - token_id
+                - email_stop
+                - linked_user_id
+                - usual_first_name
+                - last_seen_at
+                - password_changed_at
+                - encrypted_single_usage_password
+                - first_warn_anon_sent_at
+                - second_warn_anon_sent_at
+                - alumnized_at
+                - anonymized_at
+                - '-id'
+                - '-login'
+                - '-email'
+                - '-encrypted_password'
+                - '-reset_password_token'
+                - '-reset_password_sent_at'
+                - '-created_at'
+                - '-updated_at'
+                - '-image'
+                - '-first_name'
+                - '-last_name'
+                - '-pool_year'
+                - '-pool_month'
+                - '-kind'
+                - '-status'
+                - '-otp_secret_key'
+                - '-otp_tmp'
+                - '-otp_activated'
+                - '-otp_backup_passwords'
+                - '-slack_team'
+                - '-slack_login'
+                - '-slack_mail'
+                - '-slack_code_validation'
+                - '-slack_validated_at'
+                - '-token_id'
+                - '-email_stop'
+                - '-linked_user_id'
+                - '-usual_first_name'
+                - '-last_seen_at'
+                - '-password_changed_at'
+                - '-encrypted_single_usage_password'
+                - '-first_warn_anon_sent_at'
+                - '-second_warn_anon_sent_at'
+                - '-alumnized_at'
+                - '-anonymized_at'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[login]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[email]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[pool_year]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[pool_month]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[kind]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[status]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[primary_campus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[first_name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[last_name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[alumni?]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[staff?]
+          in: query
+          schema:
+            type: boolean
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[login]
+          in: query
+          schema:
+            type: string
+        - name: range[email]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[pool_year]
+          in: query
+          schema:
+            type: string
+        - name: range[pool_month]
+          in: query
+          schema:
+            type: string
+        - name: range[kind]
+          in: query
+          schema:
+            type: string
+        - name: range[status]
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                    login:
+                      type: string
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    usual_full_name:
+                      type: string
+                    usual_first_name:
+                      type: string
+                    url:
+                      type: string
+                    phone:
+                      type: string
+                    displayname:
+                      type: string
+                    kind:
+                      type: string
+                    image:
+                      type: object
+                      properties:
+                        link:
+                          type: string
+                          nullable: true
+                        versions:
+                          type: object
+                          properties:
+                            large:
+                              type: string
+                              nullable: true
+                            medium:
+                              type: string
+                              nullable: true
+                            small:
+                              type: string
+                              nullable: true
+                            micro:
+                              type: string
+                              nullable: true
+                          required:
+                            - large
+                            - medium
+                            - small
+                            - micro
+                      required:
+                        - link
+                        - versions
+                    staff?:
+                      type: boolean
+                    correction_point:
+                      type: integer
+                    pool_month:
+                      type: string
+                      nullable: true
+                    pool_year:
+                      type: string
+                      nullable: true
+                    location:
+                      type: string
+                      nullable: true
+                    wallet:
+                      type: integer
+                    anonymize_date:
+                      type: string
+                      nullable: true
+                    data_erasure_date:
+                      type: string
+                      nullable: true
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    alumnized_at:
+                      type: string
+                      nullable: true
+                    alumni?:
+                      type: boolean
+                    active?:
+                      type: boolean
+                  required:
+                    - id
+                    - email
+                    - login
+                    - first_name
+                    - last_name
+                    - usual_full_name
+                    - usual_first_name
+                    - url
+                    - phone
+                    - displayname
+                    - kind
+                    - image
+                    - staff?
+                    - correction_point
+                    - pool_month
+                    - pool_year
+                    - location
+                    - wallet
+                    - anonymize_date
+                    - data_erasure_date
+                    - created_at
+                    - updated_at
+                    - alumnized_at
+                    - alumni?
+                    - active?
+          headers: {}
+      security: []

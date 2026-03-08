@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
-import { fetchAllPages, PAGE_SIZE } from '../fetcher'
+import { fetchAllPages, fetchEndpoint, PAGE_SIZE } from '../fetcher'
 
 // ─── モジュールモック ────────────────────────────────────────────────────────
 
@@ -140,7 +140,39 @@ describe('fetchAllPages', () => {
     )
 
     // 最初のページ取得URLにpage[number]=5が含まれること
-    expect(fetchCalls[0]).toContain('page[number]=5')
+    const url = new URL(fetchCalls[0]!)
+    expect(url.searchParams.get('page[number]')).toBe('5')
+  })
+
+  test('paramsで追加クエリパラメータを指定できる', async () => {
+    const fetchCalls: string[] = []
+    globalThis.fetch = mock(async (url: string | URL | Request) => {
+      fetchCalls.push(url.toString())
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }) as unknown as typeof globalThis.fetch
+
+    const params = new Map([
+      ['filter[campus_id]', '26'],
+      ['sort', 'login'],
+    ])
+
+    await fetchAllPages(
+      'users',
+      1,
+      1,
+      () => false,
+      () => {},
+      { params },
+    )
+
+    const url = new URL(fetchCalls[0]!)
+    expect(url.searchParams.get('filter[campus_id]')).toBe('26')
+    expect(url.searchParams.get('sort')).toBe('login')
+    expect(url.searchParams.get('page[number]')).toBe('1')
+    expect(url.searchParams.get('page[size]')).toBe(String(PAGE_SIZE))
   })
 
   test('取得件数がPAGE_SIZE未満なら最終ページと判断する', async () => {
@@ -290,6 +322,66 @@ describe('fetchAllPages', () => {
     // 第2引数: 累積アイテム配列
     expect(onPageFetched.mock.calls[0]![1]).toHaveLength(PAGE_SIZE)
     expect(onPageFetched.mock.calls[1]![1]).toHaveLength(PAGE_SIZE + 1)
+  })
+})
+
+// ─── fetchEndpoint ──────────────────────────────────────────────────────────
+
+describe('fetchEndpoint', () => {
+  beforeEach(() => {
+    restoreFetch()
+  })
+
+  test('パラメータ付きでAPIを呼び出し配列を返す', async () => {
+    const fetchCalls: string[] = []
+    globalThis.fetch = mock(async (url: string | URL | Request) => {
+      fetchCalls.push(url.toString())
+      return new Response(JSON.stringify([{ id: 1 }]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }) as unknown as typeof globalThis.fetch
+
+    const params = new Map([
+      ['filter[login]', 'null'],
+      ['page[size]', '1'],
+    ])
+    const result = await fetchEndpoint('users', params)
+
+    expect(result).toEqual([{ id: 1 }])
+    const url = new URL(fetchCalls[0]!)
+    expect(url.searchParams.get('filter[login]')).toBe('null')
+    expect(url.searchParams.get('page[size]')).toBe('1')
+  })
+
+  test('パラメータなしでAPIを呼び出せる', async () => {
+    globalThis.fetch = mock(async () => {
+      return new Response(JSON.stringify([{ id: 1 }]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }) as unknown as typeof globalThis.fetch
+
+    const result = await fetchEndpoint('users', new Map())
+    expect(result).toEqual([{ id: 1 }])
+  })
+
+  test('APIエラー時はnullを返す', async () => {
+    mockFetchResponses([null, null]) // MAX_RETRIES + 1 回分
+    const result = await fetchEndpoint('users', new Map())
+    expect(result).toBeNull()
+  })
+
+  test('レスポンスが配列でない場合はnullを返す', async () => {
+    globalThis.fetch = mock(async () => {
+      return new Response(JSON.stringify({ error: 'not array' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }) as unknown as typeof globalThis.fetch
+
+    const result = await fetchEndpoint('users', new Map())
+    expect(result).toBeNull()
   })
 })
 

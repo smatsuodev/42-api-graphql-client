@@ -66,6 +66,20 @@ export class CoverageTracker {
   }
 
   /**
+   * 指定フィールドを non-nullable としてマークする。
+   * probe で non-nullable と確認されたフィールドは null サンプル不要なので、
+   * カバレッジ上「null 側も確認済み」として扱う。
+   */
+  markNonNullable(field: string): void {
+    const entry = this.coverage.get(field)
+    if (entry) {
+      entry.hasNull = true
+    } else {
+      this.coverage.set(field, { hasValue: false, hasNull: true })
+    }
+  }
+
+  /**
    * カバレッジの進捗を表示する
    */
   printProgress(): void {

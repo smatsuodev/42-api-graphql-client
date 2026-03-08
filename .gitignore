@@ -1,6 +1,5 @@
 node_modules
 *.http
 .env
-scripts/output
-.collect-snapshot
+.collect
 *.graphql

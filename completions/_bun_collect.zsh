@@ -10,6 +10,8 @@ _bun_collect() {
     '--method[HTTP メソッド]:method:(GET POST PUT PATCH DELETE)' \
     '--dry-run[openapi.yml を書き換えず、スキーマ統計のみ表示]' \
     '--resume[前回中断したスナップショットから再開]' \
+    '--sequential[逐次取得モード (プローブベースの判定を使わない)]' \
+    '*--param[クエリパラメータを追加]:param:' \
     '--skip[スキップするステップ]:steps:(fetch synthesize schema apidoc filter)' \
     '(--help -h)'{--help,-h}'[ヘルプを表示]'
 }

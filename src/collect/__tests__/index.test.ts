@@ -56,4 +56,52 @@ describe('parseArgs', () => {
     expect(result.skip).toEqual(new Set(['fetch']))
     expect(result.dryRun).toBe(true)
   })
+
+  test('--param なしの場合 params は空の Map', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.params.size).toBe(0)
+  })
+
+  test('--param で単一パラメータを指定できる', () => {
+    const result = parseArgs(['project_sessions', '--param', 'filter[campus_id]=26'])
+    expect(result.params).toEqual(new Map([['filter[campus_id]', '26']]))
+  })
+
+  test('--param を複数回指定できる', () => {
+    const result = parseArgs([
+      'project_sessions',
+      '--param',
+      'filter[campus_id]=26',
+      '--param',
+      'sort=login',
+    ])
+    expect(result.params).toEqual(
+      new Map([
+        ['filter[campus_id]', '26'],
+        ['sort', 'login'],
+      ]),
+    )
+  })
+
+  test('--param に = を含まない値を指定するとエラー', () => {
+    expect(() => parseArgs(['project_sessions', '--param', 'invalid'])).toThrow(
+      '--param は key=value 形式で指定してください',
+    )
+  })
+
+  test('--sequential なしの場合 sequential は false', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.sequential).toBe(false)
+  })
+
+  test('--sequential フラグを認識する', () => {
+    const result = parseArgs(['project_sessions', '--sequential'])
+    expect(result.sequential).toBe(true)
+  })
+
+  test('--sequential を他のオプションと組み合わせられる', () => {
+    const result = parseArgs(['project_sessions', '--sequential', '--max-pages', '10'])
+    expect(result.sequential).toBe(true)
+    expect(result.maxPages).toBe(10)
+  })
 })

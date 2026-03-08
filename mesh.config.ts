@@ -15,11 +15,22 @@ export const composeConfig = defineConfig({
       }),
       transforms: [
         createRenameTransform({
+          fieldRenamer(opts) {
+            if (opts.fieldName.endsWith('_QUESTION_MARK_')) {
+              const base = opts.fieldName.replace(/_QUESTION_MARK_$/, '')
+              return `is_${base}`
+            }
+            return ''
+          },
           argRenamer(opts) {
             if (opts.argName.startsWith('filter_LEFT_SQUARE_BRACE_')) {
-              return opts.argName
+              const arg = opts.argName
                 .replace('filter_LEFT_SQUARE_BRACE_', '')
                 .replace('_RIGHT_SQUARE_BRACE_', '')
+              if (arg.endsWith('_QUESTION_MARK_')) {
+                return `is_${arg.replace(/_QUESTION_MARK_$/, '')}`
+              }
+              return arg
             }
             if (opts.argName.startsWith('range_LEFT_SQUARE_BRACE_')) {
               const arg = opts.argName

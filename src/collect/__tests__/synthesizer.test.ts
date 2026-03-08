@@ -193,4 +193,33 @@ describe('CoverageTracker', () => {
     restored.update({ id: null, name: null } as unknown as Record<string, unknown>)
     expect(restored.isFullyCovered()).toBe(true)
   })
+
+  // ─── markNonNullable ────────────────────────────────────────────────────
+
+  test('markNonNullableした未登録フィールドは hasNull: true, hasValue: false', () => {
+    const tracker = new CoverageTracker()
+    tracker.markNonNullable('name')
+
+    const json = tracker.toJSON()
+    expect(json.name).toEqual({ hasValue: false, hasNull: true })
+  })
+
+  test('markNonNullable + 値ありで isFullyCovered() が true になる', () => {
+    const tracker = new CoverageTracker()
+    tracker.update({ name: 'Alice' })
+    expect(tracker.isFullyCovered()).toBe(false)
+
+    tracker.markNonNullable('name')
+    expect(tracker.isFullyCovered()).toBe(true)
+  })
+
+  test('markNonNullable + 値ありの状態が toJSON/fromJSON で正しく復元される', () => {
+    const tracker = new CoverageTracker()
+    tracker.update({ name: 'Alice' })
+    tracker.markNonNullable('name')
+
+    const restored = CoverageTracker.fromJSON(tracker.toJSON())
+    expect(restored.isFullyCovered()).toBe(true)
+    expect(restored.toJSON()).toEqual(tracker.toJSON())
+  })
 })

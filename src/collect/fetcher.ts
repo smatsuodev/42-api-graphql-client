@@ -74,9 +74,20 @@ export async function waitForRateLimit(): Promise<void> {
 
 // ─── API リクエスト ──────────────────────────────────────────────────────────
 
-async function fetchPage(endpoint: string, page: number): Promise<unknown[] | null> {
+/**
+ * 任意のパラメータでエンドポイントを呼び出し、配列レスポンスを返す。
+ * prober 等で共有するための汎用関数。
+ */
+export async function fetchEndpoint(
+  endpoint: string,
+  params: Map<string, string>,
+): Promise<unknown[] | null> {
   const token = await getAccessToken(waitForRateLimit)
-  const url = `${API_BASE}/${endpoint}?page[number]=${page}&page[size]=${PAGE_SIZE}`
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of params) {
+    searchParams.set(key, value)
+  }
+  const url = `${API_BASE}/${endpoint}?${searchParams.toString()}`
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     await waitForRateLimit()
@@ -115,6 +126,17 @@ async function fetchPage(endpoint: string, page: number): Promise<unknown[] | nu
   return null
 }
 
+async function fetchPage(
+  endpoint: string,
+  page: number,
+  params?: Map<string, string>,
+): Promise<unknown[] | null> {
+  const merged = new Map(params)
+  merged.set('page[number]', String(page))
+  merged.set('page[size]', String(PAGE_SIZE))
+  return fetchEndpoint(endpoint, merged)
+}
+
 // ─── ページネーション収集 ────────────────────────────────────────────────────
 
 export interface FetchResult {
@@ -131,6 +153,8 @@ export interface FetchOptions {
   loadCachedPage?: (page: number) => Record<string, unknown>[] | null
   /** ページデータ取得後に呼ばれるコールバック (キャッシュヒット・フェッチ両方) */
   onPageData?: (page: number, items: Record<string, unknown>[]) => void
+  /** 追加クエリパラメータ */
+  params?: Map<string, string>
 }
 
 /**
@@ -144,7 +168,7 @@ export async function fetchAllPages(
   onItems: (items: Record<string, unknown>[]) => void,
   options: FetchOptions = {},
 ): Promise<FetchResult> {
-  const { initialItems = [], onPageFetched, loadCachedPage, onPageData } = options
+  const { initialItems = [], onPageFetched, loadCachedPage, onPageData, params } = options
   const lastPage = offset + maxPages - 1
   const allItems: Record<string, unknown>[] = [...initialItems]
   let totalItems = 0
@@ -164,7 +188,7 @@ export async function fetchAllPages(
 
     console.log(`[fetch] ページ ${page}/${lastPage} を取得中...`)
 
-    const items = await fetchPage(endpoint, page)
+    const items = await fetchPage(endpoint, page, params)
 
     if (items === null) {
       console.warn(`[fetch] ページ ${page} の取得に失敗。スキップします。`)

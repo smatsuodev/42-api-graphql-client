@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 export interface CachedPage {
   page: number
@@ -26,4 +26,19 @@ export function loadAllCachedPages(pagesDir: string): CachedPage[] {
   return files
     .map((f) => JSON.parse(readFileSync(join(pagesDir, f), 'utf-8')) as CachedPage)
     .sort((a, b) => a.page - b.page)
+}
+
+// ─── Probe キャッシュ ────────────────────────────────────────────────────────
+
+const PROBES_FILE = 'probes.json'
+
+export function saveProbeCache(endpointDir: string, items: Record<string, unknown>[]): void {
+  mkdirSync(endpointDir, { recursive: true })
+  writeFileSync(resolve(endpointDir, PROBES_FILE), JSON.stringify(items, null, 2) + '\n')
+}
+
+export function loadProbeCache(endpointDir: string): Record<string, unknown>[] | null {
+  const filePath = resolve(endpointDir, PROBES_FILE)
+  if (!existsSync(filePath)) return null
+  return JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>[]
 }
