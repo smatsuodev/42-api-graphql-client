@@ -13,6 +13,7 @@ _bun_collect() {
     '--sequential[逐次取得モード (プローブベースの判定を使わない)]' \
     '*--param[クエリパラメータを追加]:param:' \
     '--skip[スキップするステップ]:steps:(fetch synthesize schema apidoc filter)' \
+    '--show-compatibility[42 API の全エンドポイントと openapi.yml の対応状況を表示]' \
     '(--help -h)'{--help,-h}'[ヘルプを表示]'
 }
 

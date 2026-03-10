@@ -27,6 +27,7 @@ import { buildOpenAPIParameters, extractFieldTypes } from './params'
 import { loadSnapshot, removeSnapshot, saveSnapshot } from './snapshot'
 import { loadAllCachedPages, loadPageCache, loadProbeCache, savePageCache, saveProbeCache } from './cache'
 import { isBooleanLikeField, probeBooleanFields, probeNullableFields } from './prober'
+import { showCompatibility } from './compatibility'
 import type { ApidocParams } from './apidoc'
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
@@ -48,6 +49,8 @@ export interface ParsedArgs {
   resume: boolean
   sequential: boolean
   overwrite: boolean
+  showCompatibility: boolean
+  compatMethodFilter: string[] | null
   skip: Set<Step>
   params: Map<string, string>
 }
@@ -76,6 +79,10 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   --overwrite        既存の手動編集を上書きする (デフォルト: マージ)
   --skip <steps>     スキップするステップをカンマ区切りで指定
                      (${VALID_STEPS.join(', ')})
+  --show-compatibility  42 API の全エンドポイントと openapi.yml の対応状況を表示
+                       --method と組み合わせてメソッドフィルタ可能
+                       例: bun collect --show-compatibility --method GET
+                           bun collect --show-compatibility --method GET,POST
   --help, -h         このヘルプを表示
 
 例:
@@ -88,12 +95,14 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   }
 
   let method = 'GET'
+  let methodSpecified = false
   let maxPages = DEFAULT_MAX_PAGES
   let offset = 0
   let dryRun = false
   let resume = false
   let sequential = false
   let overwrite = false
+  let showCompat = false
   const skip = new Set<Step>()
   const params = new Map<string, string>()
   const positional: string[] = []
@@ -114,6 +123,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       i++
     } else if (arg === '--method' && args[i + 1]) {
       method = args[i + 1]!.toUpperCase()
+      methodSpecified = true
       i++
     } else if (arg === '--dry-run') {
       dryRun = true
@@ -123,6 +133,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       sequential = true
     } else if (arg === '--overwrite') {
       overwrite = true
+    } else if (arg === '--show-compatibility') {
+      showCompat = true
     } else if (arg === '--skip' && args[i + 1]) {
       for (const s of args[i + 1]!.split(',')) {
         const trimmed = s.trim()
@@ -149,14 +161,16 @@ export function parseArgs(argv?: string[]): ParsedArgs {
     }
   }
 
-  if (positional.length === 0) {
+  if (positional.length === 0 && !showCompat) {
     throw new Error('エンドポイントを指定してください')
   }
 
   // 先頭の / を除去
-  const endpoint = positional[0]!.replace(/^\//, '')
+  const endpoint = positional.length > 0 ? positional[0]!.replace(/^\//, '') : ''
 
-  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, overwrite, skip, params }
+  const compatMethodFilter = showCompat && methodSpecified ? method.split(',') : null
+
+  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, overwrite, showCompatibility: showCompat, compatMethodFilter, skip, params }
 }
 
 // ─── メイン処理 ──────────────────────────────────────────────────────────────
@@ -171,9 +185,17 @@ async function main(): Promise<void> {
     resume,
     sequential,
     overwrite,
+    showCompatibility: showCompat,
+    compatMethodFilter,
     skip,
     params,
   } = parseArgs()
+
+  if (showCompat) {
+    await showCompatibility(compatMethodFilter)
+    return
+  }
+
   const safeName = endpoint.replace(/\//g, '_')
 
   // ─── ディレクトリ構造 ──────────────────────────────────────────────────

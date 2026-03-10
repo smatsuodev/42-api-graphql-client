@@ -114,4 +114,44 @@ describe('parseArgs', () => {
     const result = parseArgs(['project_sessions', '--overwrite'])
     expect(result.overwrite).toBe(true)
   })
+
+  test('--show-compatibility なしの場合 showCompatibility は false', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.showCompatibility).toBe(false)
+  })
+
+  test('--show-compatibility フラグを認識する', () => {
+    const result = parseArgs(['--show-compatibility'])
+    expect(result.showCompatibility).toBe(true)
+  })
+
+  test('--show-compatibility はエンドポイント未指定でもエラーにならない', () => {
+    expect(() => parseArgs(['--show-compatibility'])).not.toThrow()
+  })
+
+  test('--show-compatibility とエンドポイントを組み合わせられる', () => {
+    const result = parseArgs(['project_sessions', '--show-compatibility'])
+    expect(result.showCompatibility).toBe(true)
+    expect(result.endpoint).toBe('project_sessions')
+  })
+
+  test('--show-compatibility --method GET で compatMethodFilter が設定される', () => {
+    const result = parseArgs(['--show-compatibility', '--method', 'GET'])
+    expect(result.compatMethodFilter).toEqual(['GET'])
+  })
+
+  test('--show-compatibility --method GET,POST で複数メソッドフィルタ', () => {
+    const result = parseArgs(['--show-compatibility', '--method', 'GET,POST'])
+    expect(result.compatMethodFilter).toEqual(['GET', 'POST'])
+  })
+
+  test('--show-compatibility のみの場合 compatMethodFilter は null', () => {
+    const result = parseArgs(['--show-compatibility'])
+    expect(result.compatMethodFilter).toBeNull()
+  })
+
+  test('--method GET のみ (show-compatibility なし) の場合 compatMethodFilter は null', () => {
+    const result = parseArgs(['project_sessions', '--method', 'GET'])
+    expect(result.compatMethodFilter).toBeNull()
+  })
 })
