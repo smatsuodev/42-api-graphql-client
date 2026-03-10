@@ -8,6 +8,7 @@
 import { writeFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 import { OPENAPI_PATH, YAML_DUMP_OPTIONS, readOrCreateOpenApiDoc } from './openapi'
+import { mergeOpenAPISchema, mergeParameters } from './merge'
 
 export { YAML_DUMP_OPTIONS }
 
@@ -176,6 +177,7 @@ function updateOpenAPIDocument(
   endpointPath: string,
   method: string,
   schema: OpenAPISchema,
+  overwrite = true,
 ): { action: 'created' | 'updated' } {
   if (!doc.paths) {
     doc.paths = {}
@@ -208,8 +210,11 @@ function updateOpenAPIDocument(
       if (!response200.content) {
         response200.content = {}
       }
+      const existingSchema = response200.content['application/json']?.schema
+      const finalSchema =
+        !overwrite && existingSchema ? mergeOpenAPISchema(existingSchema, schema) : schema
       response200.content['application/json'] = {
-        schema,
+        schema: finalSchema,
       }
     } else {
       // パスは存在するが、メソッドが無い — 新規メソッド追加
@@ -296,6 +301,7 @@ export function updateParameters(
   method: string,
   parameters: unknown[],
   dryRun: boolean,
+  overwrite = true,
 ): void {
   console.log(`\n=== apidoc パラメータ更新 ===`)
   console.log(`エンドポイント: ${method} ${endpointPath}`)
@@ -328,7 +334,11 @@ export function updateParameters(
     return
   }
 
-  operation.parameters = parameters
+  const existingParams = operation.parameters as Record<string, unknown>[] | undefined
+  operation.parameters =
+    !overwrite && existingParams && existingParams.length > 0
+      ? mergeParameters(existingParams, parameters as Record<string, unknown>[])
+      : parameters
 
   const output = yaml.dump(doc, YAML_DUMP_OPTIONS)
   writeFileSync(OPENAPI_PATH, output)
@@ -342,6 +352,7 @@ export function updateSchema(
   endpointPath: string,
   method: string,
   dryRun: boolean,
+  overwrite = true,
 ): void {
   console.log(`\n=== OpenAPI スキーマ更新 ===`)
   console.log(`エンドポイント: ${method} ${endpointPath}`)
@@ -380,7 +391,7 @@ export function updateSchema(
   const doc = readOrCreateOpenApiDoc() as OpenAPIDocument
 
   // 更新
-  const { action } = updateOpenAPIDocument(doc, endpointPath, method, schema)
+  const { action } = updateOpenAPIDocument(doc, endpointPath, method, schema, overwrite)
 
   // 書き出し
   const output = yaml.dump(doc, YAML_DUMP_OPTIONS)

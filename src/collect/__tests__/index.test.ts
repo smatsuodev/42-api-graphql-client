@@ -104,4 +104,14 @@ describe('parseArgs', () => {
     expect(result.sequential).toBe(true)
     expect(result.maxPages).toBe(10)
   })
+
+  test('--overwrite なしの場合 overwrite は false', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.overwrite).toBe(false)
+  })
+
+  test('--overwrite フラグを認識する', () => {
+    const result = parseArgs(['project_sessions', '--overwrite'])
+    expect(result.overwrite).toBe(true)
+  })
 })

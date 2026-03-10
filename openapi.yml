@@ -1719,3 +1719,396 @@ paths:
                     - active?
           headers: {}
       security: []
+  /cursus_users:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - cursus_id
+                - user_id
+                - created_at
+                - updated_at
+                - end_at
+                - begin_at
+                - has_coalition
+                - blackholed_at
+                - level
+                - '-id'
+                - '-cursus_id'
+                - '-user_id'
+                - '-created_at'
+                - '-updated_at'
+                - '-end_at'
+                - '-begin_at'
+                - '-has_coalition'
+                - '-blackholed_at'
+                - '-level'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[cursus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[user_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[end_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[begin_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[has_coalition]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[blackholed_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[level]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[active]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[campus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[end]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[future]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[blackholed]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[cursus_id]
+          in: query
+          schema:
+            type: string
+        - name: range[user_id]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[end_at]
+          in: query
+          schema:
+            type: string
+        - name: range[begin_at]
+          in: query
+          schema:
+            type: string
+        - name: range[has_coalition]
+          in: query
+          schema:
+            type: string
+        - name: range[blackholed_at]
+          in: query
+          schema:
+            type: string
+        - name: range[level]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    begin_at:
+                      type: string
+                    end_at:
+                      type: string
+                      nullable: true
+                    grade:
+                      type: string
+                      nullable: true
+                    level:
+                      type: integer
+                    skills:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          level:
+                            type: number
+                        required:
+                          - id
+                          - name
+                          - level
+                    cursus_id:
+                      type: integer
+                    has_coalition:
+                      type: boolean
+                    blackholed_at:
+                      type: string
+                      nullable: true
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        email:
+                          type: string
+                        login:
+                          type: string
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        usual_full_name:
+                          type: string
+                        usual_first_name:
+                          type: string
+                        url:
+                          type: string
+                        phone:
+                          type: string
+                        displayname:
+                          type: string
+                        kind:
+                          type: string
+                        image:
+                          type: object
+                          properties:
+                            link:
+                              type: string
+                              nullable: true
+                            versions:
+                              type: object
+                              properties:
+                                large:
+                                  type: string
+                                  nullable: true
+                                medium:
+                                  type: string
+                                  nullable: true
+                                small:
+                                  type: string
+                                  nullable: true
+                                micro:
+                                  type: string
+                                  nullable: true
+                              required:
+                                - large
+                                - medium
+                                - small
+                                - micro
+                          required:
+                            - link
+                            - versions
+                        staff?:
+                          type: boolean
+                        correction_point:
+                          type: integer
+                        pool_month:
+                          type: string
+                          nullable: true
+                        pool_year:
+                          type: string
+                          nullable: true
+                        location:
+                          type: string
+                          nullable: true
+                        wallet:
+                          type: integer
+                        anonymize_date:
+                          type: string
+                        data_erasure_date:
+                          type: string
+                        created_at:
+                          type: string
+                        updated_at:
+                          type: string
+                        alumnized_at:
+                          type: string
+                          nullable: true
+                        alumni?:
+                          type: boolean
+                        active?:
+                          type: boolean
+                      required:
+                        - id
+                        - email
+                        - login
+                        - first_name
+                        - last_name
+                        - usual_full_name
+                        - usual_first_name
+                        - url
+                        - phone
+                        - displayname
+                        - kind
+                        - image
+                        - staff?
+                        - correction_point
+                        - pool_month
+                        - pool_year
+                        - location
+                        - wallet
+                        - anonymize_date
+                        - data_erasure_date
+                        - created_at
+                        - updated_at
+                        - alumnized_at
+                        - alumni?
+                        - active?
+                    cursus:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        created_at:
+                          type: string
+                        name:
+                          type: string
+                        slug:
+                          type: string
+                        kind:
+                          type: string
+                      required:
+                        - id
+                        - created_at
+                        - name
+                        - slug
+                        - kind
+                  required:
+                    - id
+                    - begin_at
+                    - end_at
+                    - grade
+                    - level
+                    - skills
+                    - cursus_id
+                    - has_coalition
+                    - blackholed_at
+                    - created_at
+                    - updated_at
+                    - user
+                    - cursus
+          headers: {}
+      security: []

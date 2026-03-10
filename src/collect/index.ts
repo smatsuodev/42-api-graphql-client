@@ -47,6 +47,7 @@ export interface ParsedArgs {
   dryRun: boolean
   resume: boolean
   sequential: boolean
+  overwrite: boolean
   skip: Set<Step>
   params: Map<string, string>
 }
@@ -72,6 +73,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   --sequential       逐次取得モード (プローブベースの判定を使わない)
   --param <key=value> クエリパラメータを追加 (複数回指定可)
                      例: --param "filter[campus_id]=26"
+  --overwrite        既存の手動編集を上書きする (デフォルト: マージ)
   --skip <steps>     スキップするステップをカンマ区切りで指定
                      (${VALID_STEPS.join(', ')})
   --help, -h         このヘルプを表示
@@ -91,6 +93,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   let dryRun = false
   let resume = false
   let sequential = false
+  let overwrite = false
   const skip = new Set<Step>()
   const params = new Map<string, string>()
   const positional: string[] = []
@@ -118,6 +121,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       resume = true
     } else if (arg === '--sequential') {
       sequential = true
+    } else if (arg === '--overwrite') {
+      overwrite = true
     } else if (arg === '--skip' && args[i + 1]) {
       for (const s of args[i + 1]!.split(',')) {
         const trimmed = s.trim()
@@ -151,7 +156,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   // 先頭の / を除去
   const endpoint = positional[0]!.replace(/^\//, '')
 
-  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, skip, params }
+  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, overwrite, skip, params }
 }
 
 // ─── メイン処理 ──────────────────────────────────────────────────────────────
@@ -165,6 +170,7 @@ async function main(): Promise<void> {
     dryRun,
     resume,
     sequential,
+    overwrite,
     skip,
     params,
   } = parseArgs()
@@ -399,7 +405,7 @@ async function main(): Promise<void> {
       full = [JSON.parse(readFileSync(fullPath, 'utf-8'))]
       nullable = [JSON.parse(readFileSync(nullablePath, 'utf-8'))]
     }
-    updateSchema(full!, nullable!, endpointPath, method, dryRun)
+    updateSchema(full!, nullable!, endpointPath, method, dryRun, overwrite)
   } else {
     console.log('[skip] schema をスキップしました')
   }
@@ -430,7 +436,7 @@ async function main(): Promise<void> {
 
       const parameters = buildOpenAPIParameters(apidocParams, fieldTypes)
       if (parameters.length > 0) {
-        updateParameters(endpointPath, method, parameters, dryRun)
+        updateParameters(endpointPath, method, parameters, dryRun, overwrite)
       } else {
         console.log('[apidoc] パラメータが見つかりませんでした')
       }
