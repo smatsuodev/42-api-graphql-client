@@ -3,3 +3,5 @@ node_modules
 .env
 .collect
 *.graphql
+log/
+.claude/settings.local.json
