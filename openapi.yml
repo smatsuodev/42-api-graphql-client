@@ -2275,3 +2275,358 @@ paths:
                     - difficulty
           headers: {}
       security: []
+  /achievements:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - internal_name
+                - kind
+                - tier
+                - description
+                - pedago
+                - visible
+                - nbr_of_success
+                - parent_id
+                - image
+                - created_at
+                - updated_at
+                - slug
+                - position
+                - reward
+                - title_id
+                - '-id'
+                - '-name'
+                - '-internal_name'
+                - '-kind'
+                - '-tier'
+                - '-description'
+                - '-pedago'
+                - '-visible'
+                - '-nbr_of_success'
+                - '-parent_id'
+                - '-image'
+                - '-created_at'
+                - '-updated_at'
+                - '-slug'
+                - '-position'
+                - '-reward'
+                - '-title_id'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[internal_name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[kind]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[tier]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[description]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[pedago]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[visible]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[nbr_of_success]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[parent_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[image]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[slug]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[position]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[reward]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[title_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[name]
+          in: query
+          schema:
+            type: string
+        - name: range[internal_name]
+          in: query
+          schema:
+            type: string
+        - name: range[kind]
+          in: query
+          schema:
+            type: string
+        - name: range[tier]
+          in: query
+          schema:
+            type: string
+        - name: range[description]
+          in: query
+          schema:
+            type: string
+        - name: range[pedago]
+          in: query
+          schema:
+            type: string
+        - name: range[visible]
+          in: query
+          schema:
+            type: string
+        - name: range[nbr_of_success]
+          in: query
+          schema:
+            type: string
+        - name: range[parent_id]
+          in: query
+          schema:
+            type: string
+        - name: range[image]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: range[slug]
+          in: query
+          schema:
+            type: string
+        - name: range[position]
+          in: query
+          schema:
+            type: string
+        - name: range[reward]
+          in: query
+          schema:
+            type: string
+        - name: range[title_id]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    tier:
+                      type: string
+                    kind:
+                      type: string
+                    visible:
+                      type: boolean
+                    image:
+                      type: string
+                      nullable: true
+                    nbr_of_success:
+                      type: integer
+                      nullable: true
+                    users_url:
+                      type: string
+                    achievements:
+                      type: array
+                      items:
+                        type: string
+                    campus:
+                      type: array
+                      items:
+                        type: string
+                    parent:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        tier:
+                          type: string
+                        kind:
+                          type: string
+                        visible:
+                          type: boolean
+                        image:
+                          type: string
+                        nbr_of_success:
+                          type: integer
+                        users_url:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - description
+                        - tier
+                        - kind
+                        - visible
+                        - image
+                        - nbr_of_success
+                        - users_url
+                    title:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                  required:
+                    - id
+                    - name
+                    - description
+                    - tier
+                    - kind
+                    - visible
+                    - image
+                    - nbr_of_success
+                    - users_url
+                    - achievements
+                    - campus
+                    - parent
+                    - title
+          headers: {}
+      security: []
