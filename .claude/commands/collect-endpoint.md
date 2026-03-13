@@ -13,16 +13,11 @@ description: 42 APIの未対応エンドポイントのOpenAPIスキーマを自
 
 `bun collect --show-compatibility --method GET --format json` を実行し、未対応のAPIエンドポイントを一覧表示する。
 
-出力はJSON形式で、各エントリに `supported: false` のエンドポイントが未対応。
-
-結果をユーザーに表示し、どのエンドポイントを対応するか選んでもらう。表示時は:
-- `supported: false` かつ `restricted: false` のエンドポイントだけ表示する
-- パスパラメータを含むエンドポイント(例: `/achievements/{id}`)はリスト型エンドポイントより難易度が高いことを伝える
-- 関連するエンドポイント群をグルーピングして見やすくする
+出力はJSON形式で、各エントリに `supported: false` のエンドポイントが未対応
 
 ### Step 2: スキーマ収集
 
-ユーザーが選んだエンドポイントに対して `bun collect <endpoint>` を実行する。
+一番上の未対応のエンドポイントに対して `bun collect <endpoint>` を実行する。
 
 - `<endpoint>` は `/v2/` 以降のパス部分（例: `achievements`, `campus`）
 - 実行にはAPIキーが必要（環境変数 `FT_API_CLIENT_ID`, `FT_API_CLIENT_SECRET`）

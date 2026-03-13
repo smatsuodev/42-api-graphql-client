@@ -2112,3 +2112,166 @@ paths:
                     - cursus
           headers: {}
       security: []
+  /accreditations:
+    get:
+      summary: ''
+      deprecated: false
+      description: ''
+      tags: []
+      parameters:
+        - name: sort
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - name
+                - user_id
+                - cursus_id
+                - difficulty
+                - validated
+                - created_at
+                - updated_at
+                - '-id'
+                - '-name'
+                - '-user_id'
+                - '-cursus_id'
+                - '-difficulty'
+                - '-validated'
+                - '-created_at'
+                - '-updated_at'
+        - name: filter[id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[name]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[user_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[cursus_id]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[difficulty]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: filter[validated]
+          in: query
+          schema:
+            type: boolean
+        - name: filter[created_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter[updated_at]
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: range[id]
+          in: query
+          schema:
+            type: string
+        - name: range[name]
+          in: query
+          schema:
+            type: string
+        - name: range[user_id]
+          in: query
+          schema:
+            type: string
+        - name: range[cursus_id]
+          in: query
+          schema:
+            type: string
+        - name: range[difficulty]
+          in: query
+          schema:
+            type: string
+        - name: range[validated]
+          in: query
+          schema:
+            type: string
+        - name: range[created_at]
+          in: query
+          schema:
+            type: string
+        - name: range[updated_at]
+          in: query
+          schema:
+            type: string
+        - name: page[number]
+          in: query
+          schema:
+            type: integer
+        - name: page[size]
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    user_id:
+                      type: integer
+                    cursus_id:
+                      type: integer
+                    validated:
+                      type: boolean
+                    difficulty:
+                      type: integer
+                  required:
+                    - id
+                    - name
+                    - user_id
+                    - cursus_id
+                    - validated
+                    - difficulty
+          headers: {}
+      security: []
