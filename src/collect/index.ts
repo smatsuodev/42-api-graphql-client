@@ -28,6 +28,7 @@ import { loadSnapshot, removeSnapshot, saveSnapshot } from './snapshot'
 import { loadAllCachedPages, loadPageCache, loadProbeCache, savePageCache, saveProbeCache } from './cache'
 import { isBooleanLikeField, probeBooleanFields, probeNullableFields } from './prober'
 import { showCompatibility } from './compatibility'
+import type { CompatOutputFormat } from './compatibility'
 import type { ApidocParams } from './apidoc'
 
 // ─── 定数 ────────────────────────────────────────────────────────────────────
@@ -40,6 +41,8 @@ const COLLECT_DIR = resolve(import.meta.dirname, '..', '..', '.collect')
 
 // ─── CLI パース ──────────────────────────────────────────────────────────────
 
+const VALID_FORMATS = ['ascii', 'markdown', 'json'] as const
+
 export interface ParsedArgs {
   endpoint: string
   maxPages: number
@@ -50,7 +53,9 @@ export interface ParsedArgs {
   sequential: boolean
   overwrite: boolean
   showCompatibility: boolean
+  showRestricted: boolean
   compatMethodFilter: string[] | null
+  compatOutputFormat: CompatOutputFormat
   skip: Set<Step>
   params: Map<string, string>
 }
@@ -83,6 +88,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
                        --method と組み合わせてメソッドフィルタ可能
                        例: bun collect --show-compatibility --method GET
                            bun collect --show-compatibility --method GET,POST
+  --show-restricted    制限付きエンドポイントも表示する (デフォルト: 非表示)
+  --format <format>    出力形式 (ascii|markdown|json, デフォルト: ascii)
   --help, -h         このヘルプを表示
 
 例:
@@ -103,6 +110,8 @@ export function parseArgs(argv?: string[]): ParsedArgs {
   let sequential = false
   let overwrite = false
   let showCompat = false
+  let showRestricted = false
+  let compatOutputFormat: CompatOutputFormat = 'ascii'
   const skip = new Set<Step>()
   const params = new Map<string, string>()
   const positional: string[] = []
@@ -135,6 +144,15 @@ export function parseArgs(argv?: string[]): ParsedArgs {
       overwrite = true
     } else if (arg === '--show-compatibility') {
       showCompat = true
+    } else if (arg === '--show-restricted') {
+      showRestricted = true
+    } else if (arg === '--format' && args[i + 1]) {
+      const fmt = args[i + 1]!
+      if (!VALID_FORMATS.includes(fmt as CompatOutputFormat)) {
+        throw new Error(`不明なフォーマット: ${fmt} (有効なフォーマット: ${VALID_FORMATS.join(', ')})`)
+      }
+      compatOutputFormat = fmt as CompatOutputFormat
+      i++
     } else if (arg === '--skip' && args[i + 1]) {
       for (const s of args[i + 1]!.split(',')) {
         const trimmed = s.trim()
@@ -170,7 +188,7 @@ export function parseArgs(argv?: string[]): ParsedArgs {
 
   const compatMethodFilter = showCompat && methodSpecified ? method.split(',') : null
 
-  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, overwrite, showCompatibility: showCompat, compatMethodFilter, skip, params }
+  return { endpoint, maxPages, offset, method, dryRun, resume, sequential, overwrite, showCompatibility: showCompat, showRestricted, compatMethodFilter, compatOutputFormat, skip, params }
 }
 
 // ─── メイン処理 ──────────────────────────────────────────────────────────────
@@ -186,13 +204,19 @@ async function main(): Promise<void> {
     sequential,
     overwrite,
     showCompatibility: showCompat,
+    showRestricted,
     compatMethodFilter,
+    compatOutputFormat,
     skip,
     params,
   } = parseArgs()
 
   if (showCompat) {
-    await showCompatibility(compatMethodFilter)
+    await showCompatibility({
+      methods: compatMethodFilter,
+      showRestricted,
+      format: compatOutputFormat,
+    })
     return
   }
 

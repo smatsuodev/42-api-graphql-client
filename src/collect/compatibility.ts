@@ -18,13 +18,17 @@ const METHOD_ORDER = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
 export interface ApiEndpoint {
   method: string
   path: string
+  restricted: boolean
 }
 
 export interface CompatibilityEntry {
   method: string
   path: string
   supported: boolean
+  restricted: boolean
 }
+
+export type CompatOutputFormat = 'ascii' | 'markdown' | 'json'
 
 // ─── 純粋関数 ────────────────────────────────────────────────────────────────
 
@@ -52,7 +56,8 @@ export function parseApidocEndpoints(html: string): ApiEndpoint[] {
     const key = `${method} ${path}`
     if (!seen.has(key)) {
       seen.add(key)
-      endpoints.push({ method, path })
+      const restricted = item.text.includes('vpn_key')
+      endpoints.push({ method, path, restricted })
     }
   }
 
@@ -78,7 +83,7 @@ export function buildCompatibilityTable(
     const normalized = normalizeEndpointPath(ep.path)
     const pathEntry = openapiPaths[normalized]
     const supported = !!pathEntry?.[ep.method.toLowerCase()]
-    return { method: ep.method, path: normalized, supported }
+    return { method: ep.method, path: normalized, supported, restricted: ep.restricted }
   })
 }
 
@@ -89,6 +94,14 @@ export function filterByMethods(entries: CompatibilityEntry[], methods: string[]
   if (methods.length === 0) return entries
   const upper = new Set(methods.map((m) => m.toUpperCase()))
   return entries.filter((e) => upper.has(e.method.toUpperCase()))
+}
+
+/**
+ * restricted エンドポイントをフィルタする。showRestricted が true の場合は全件を返す。
+ */
+export function filterByRestricted(entries: CompatibilityEntry[], showRestricted: boolean): CompatibilityEntry[] {
+  if (showRestricted) return entries
+  return entries.filter((e) => !e.restricted)
 }
 
 /**
@@ -110,17 +123,77 @@ export function formatCompatibilityTable(entries: CompatibilityEntry[]): string 
   const total = entries.length
   const pct = total > 0 ? ((supportedCount / total) * 100).toFixed(1) : '0.0'
 
-  const header = 'METHOD      ENDPOINT                              COMPATIBILITY'
-  const separator = '-'.repeat(header.length)
+  const headers = ['Method', 'Endpoint', 'Compatibility']
+  const rows = entries.map((e) => [e.method, e.path, e.supported ? '⭕' : '❌'])
+
+  const colWidths = headers.map((h, i) => {
+    const dataMax = rows.reduce((max, row) => Math.max(max, row[i]!.length), 0)
+    return Math.max(h.length, dataMax)
+  })
+
+  const border = '+' + colWidths.map((w) => '-'.repeat(w + 2)).join('+') + '+'
+  const headerRow = '|' + headers.map((h, i) => ` ${h.padEnd(colWidths[i]!)} `).join('|') + '|'
+  const dataRows = rows.map(
+    (row) => '|' + row.map((cell, i) => ` ${cell.padEnd(colWidths[i]!)} `).join('|') + '|',
+  )
+
+  return [border, headerRow, border, ...dataRows, border, '', `${supportedCount}/${total} endpoints covered (${pct}%)`].join('\n')
+}
+
+/**
+ * Markdown テーブル形式でフォーマットする
+ */
+export function formatCompatibilityMarkdown(entries: CompatibilityEntry[]): string {
+  const supportedCount = entries.filter((e) => e.supported).length
+  const total = entries.length
+  const pct = total > 0 ? ((supportedCount / total) * 100).toFixed(1) : '0.0'
+
+  const header = '| Method | Endpoint | Compatibility |'
+  const separator = '| --- | --- | --- |'
 
   const rows = entries.map((e) => {
-    const method = e.method.padEnd(10)
-    const path = e.path.padEnd(36)
     const compat = e.supported ? '⭕' : '❌'
-    return `${method}  ${path}  ${compat}`
+    return `| ${e.method} | ${e.path} | ${compat} |`
   })
 
   return [header, separator, ...rows, '', `${supportedCount}/${total} endpoints covered (${pct}%)`].join('\n')
+}
+
+/**
+ * JSON 形式でフォーマットする
+ */
+export function formatCompatibilityJson(entries: CompatibilityEntry[]): string {
+  const supportedCount = entries.filter((e) => e.supported).length
+  const total = entries.length
+  const pct = total > 0 ? ((supportedCount / total) * 100).toFixed(1) : '0.0'
+
+  return JSON.stringify({
+    entries: entries.map((e) => ({
+      method: e.method,
+      path: e.path,
+      supported: e.supported,
+      restricted: e.restricted,
+    })),
+    summary: {
+      supported: supportedCount,
+      total,
+      percentage: pct,
+    },
+  }, null, 2)
+}
+
+/**
+ * 指定フォーマットで出力文字列を生成する
+ */
+export function formatCompatibility(entries: CompatibilityEntry[], format: CompatOutputFormat): string {
+  switch (format) {
+    case 'markdown':
+      return formatCompatibilityMarkdown(entries)
+    case 'json':
+      return formatCompatibilityJson(entries)
+    default:
+      return formatCompatibilityTable(entries)
+  }
 }
 
 // ─── オーケストレーション ────────────────────────────────────────────────────
@@ -128,7 +201,13 @@ export function formatCompatibilityTable(entries: CompatibilityEntry[]): string 
 /**
  * 対応状況テーブルを表示する
  */
-export async function showCompatibility(methods?: string[] | null): Promise<void> {
+export async function showCompatibility(options: {
+  methods?: string[] | null
+  showRestricted?: boolean
+  format?: CompatOutputFormat
+}): Promise<void> {
+  const { methods, showRestricted = false, format = 'ascii' } = options
+
   console.log(`[compatibility] フェッチ中: ${APIDOC_HTML_URL}`)
   const response = await fetch(APIDOC_HTML_URL)
   if (!response.ok) {
@@ -142,8 +221,9 @@ export async function showCompatibility(methods?: string[] | null): Promise<void
 
   const table = buildCompatibilityTable(endpoints, openapiPaths)
   const filtered = methods ? filterByMethods(table, methods) : table
-  const sorted = sortCompatibilityEntries(filtered)
-  const output = formatCompatibilityTable(sorted)
+  const restrictedFiltered = filterByRestricted(filtered, showRestricted)
+  const sorted = sortCompatibilityEntries(restrictedFiltered)
+  const output = formatCompatibility(sorted, format)
 
   console.log(`\n${output}`)
 }

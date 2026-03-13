@@ -154,4 +154,40 @@ describe('parseArgs', () => {
     const result = parseArgs(['project_sessions', '--method', 'GET'])
     expect(result.compatMethodFilter).toBeNull()
   })
+
+  test('--show-restricted なしの場合 showRestricted は false', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.showRestricted).toBe(false)
+  })
+
+  test('--show-restricted フラグを認識する', () => {
+    const result = parseArgs(['--show-compatibility', '--show-restricted'])
+    expect(result.showRestricted).toBe(true)
+  })
+
+  test('--format なしの場合 compatOutputFormat は ascii', () => {
+    const result = parseArgs(['project_sessions'])
+    expect(result.compatOutputFormat).toBe('ascii')
+  })
+
+  test('--format markdown を認識する', () => {
+    const result = parseArgs(['--show-compatibility', '--format', 'markdown'])
+    expect(result.compatOutputFormat).toBe('markdown')
+  })
+
+  test('--format json を認識する', () => {
+    const result = parseArgs(['--show-compatibility', '--format', 'json'])
+    expect(result.compatOutputFormat).toBe('json')
+  })
+
+  test('--format ascii を認識する', () => {
+    const result = parseArgs(['--show-compatibility', '--format', 'ascii'])
+    expect(result.compatOutputFormat).toBe('ascii')
+  })
+
+  test('--format に不明な値を指定するとエラー', () => {
+    expect(() => parseArgs(['--show-compatibility', '--format', 'csv'])).toThrow(
+      '不明なフォーマット: csv',
+    )
+  })
 })
